@@ -1,0 +1,16 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "leaveat.fullname" . }}-postgres-headless
+  labels:
+    app: {{ include "leaveat.name" . }}-postgres
+spec:
+  clusterIP: None
+  selector:
+    app: {{ include "leaveat.name" . }}-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+{{- end }}

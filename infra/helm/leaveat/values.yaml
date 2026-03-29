@@ -1,0 +1,130 @@
+# Default values for leaveat.
+replicaCount: 1
+
+backend:
+  image:
+    repository: silentcoil.sillygooseia.com:5000/sillygooseia/bafgo-leaveat-backend
+    tag: latest
+  port: 3000
+  cleanupIntervalMs: 300000  # 5 minutes
+  # licensePublicKey: ""  # For dev only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+license:
+  k8sName: bafgo-leaveat-license
+  image:
+    repository: silentcoil.sillygooseia.com:5000/sillygooseia/bafgo-leaveat-license
+    tag: latest
+  port: 3001
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+  # privateKeyPem: ""   # For dev/testing only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
+  # publicKeyPem: ""    # For dev/testing only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
+  # lemonsqueezyApiKey: ""
+  # lemonsqueezyStoreId: ""
+  # lemonsqueezyVariantId: ""
+  # lemonsqueezyWebhookSecret: ""
+
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 7-alpine
+  # password: ""  # For dev/testing only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""  # Use default storage class, or override with specific class
+  backups:
+    enabled: false
+    schedule: "0 3 * * *"
+    retentionDays: 7
+    size: 2Gi
+    storageClass: ""
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "25m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+frontend:
+  image:
+    repository: silentcoil.sillygooseia.com:5000/sillygooseia/bafgo-leaveat-frontend
+    tag: latest
+  port: 80
+  resources:
+    requests:
+      cpu: "25m"
+      memory: "32Mi"
+    limits:
+      cpu: "100m"
+      memory: "64Mi"
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  host: leaveat.com
+  aliasHosts:
+    - www.leaveat.com
+  className: traefik
+  tlsSecretName: leaveat-tls
+  clusterIssuer: letsencrypt-prod
+  redirectToSuite:
+    enabled: true
+    regex: "^https?://(?:www\\.)?leaveat\\.com/?.*"
+    replacement: "https://bafgo.com/leaveat-transition"
+    permanent: true
+
+suiteIngress:
+  enabled: true
+  host: bafgo.com
+  className: traefik
+  tlsSecretName: bafgo-tls
+  clusterIssuer: letsencrypt-prod
+  pathPrefix: /schedule
+  stripPrefix: /schedule
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 16-alpine
+  user: leaveat
+  database: leaveat
+  # password: ""  # For dev only — set here to have Helm create the secret.
+  # For production: leave empty and run scripts/provision-leaveat-secrets.ps1 instead.
+  password: ""
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: ""  # Use default storage class, or override with specific class
+  backups:
+    enabled: false
+    schedule: "0 2 * * *"
+    retentionDays: 7
+    size: 5Gi
+    storageClass: ""
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+env: {}

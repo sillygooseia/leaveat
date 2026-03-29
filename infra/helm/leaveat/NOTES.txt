@@ -1,0 +1,8 @@
+Thank you for installing LeaveAt.
+
+To access the app (if ingress enabled):
+
+  host: {{ .Values.ingress.host }}
+
+Backend service: {{ include "leaveat.fullname" . }}-backend:{{ .Values.backend.port }}
+Frontend service: {{ include "leaveat.fullname" . }}-frontend:{{ .Values.frontend.port }}

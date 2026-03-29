@@ -1,0 +1,17 @@
+{{- if and .Values.postgres.enabled .Values.postgres.backups.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "leaveat.fullname" . }}-postgres-backups
+  labels:
+    app: {{ include "leaveat.name" . }}-postgres-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.postgres.backups.size }}
+  {{- if .Values.postgres.backups.storageClass }}
+  storageClassName: {{ .Values.postgres.backups.storageClass }}
+  {{- end }}
+{{- end }}

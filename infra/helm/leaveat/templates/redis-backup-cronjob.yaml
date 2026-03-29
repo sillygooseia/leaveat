@@ -1,0 +1,41 @@
+{{- if and .Values.redis.enabled .Values.redis.backups.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "leaveat.fullname" . }}-redis-backup
+spec:
+  schedule: {{ .Values.redis.backups.schedule | quote }}
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ include "leaveat.name" . }}-redis-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: redis-backup
+              image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "leaveat.fullname" . }}-redis-secret
+                      key: REDIS_PASSWORD
+              command: ["sh", "-c"]
+              args:
+                - >-
+                  set -eu;
+                  ts=$(date +%Y%m%d-%H%M%S);
+                  redis-cli -a "$REDIS_PASSWORD" -h {{ include "leaveat.fullname" . }}-redis --rdb /backups/leaveat-redis-$ts.rdb;
+                  find /backups -type f -name '*.rdb' -mtime +{{ .Values.redis.backups.retentionDays }} -delete
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: {{ include "leaveat.fullname" . }}-redis-backups
+{{- end }}

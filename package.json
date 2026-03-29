@@ -5,7 +5,8 @@
   "description": "LeaveAt — employee scheduling tool built on the BafGo SDK",
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
+    "dev:license": "cd license && npm run dev",
     "dev:frontend": "cd frontend && npm start",
-    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+    "install:all": "cd backend && npm install && cd ../license && npm install && cd ../frontend && npm install"
   }
 }

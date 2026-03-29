@@ -47,7 +47,7 @@ export class DbService {
 
     this.schedules.set(schedules);
     this.employees.set(employees);
-    this.viewerAccess.set(viewerAccess.sort((a, b) => b.registeredAt - a.registeredAt));
+    this.viewerAccess.set(viewerAccess.sort((a: ViewerAccess, b: ViewerAccess) => b.registeredAt - a.registeredAt));
     this._ready = true;
   }
 

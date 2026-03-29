@@ -1,12 +1,12 @@
 {
   "/api/license": {
-    "target": "http://localhost:3001",
+    "target": "http://localhost:3003",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": { "^/api/license": "" }
   },
   "/api": {
-    "target": "http://localhost:3000",
+    "target": "http://localhost:3002",
     "secure": false,
     "changeOrigin": true
   }

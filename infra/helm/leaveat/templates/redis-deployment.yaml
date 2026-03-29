@@ -1,0 +1,70 @@
+{{- if .Values.redis.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "leaveat.fullname" . }}-redis
+  labels:
+    app: {{ include "leaveat.name" . }}-redis
+spec:
+  serviceName: {{ include "leaveat.fullname" . }}-redis-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "leaveat.name" . }}-redis
+  template:
+    metadata:
+      labels:
+        app: {{ include "leaveat.name" . }}-redis
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-redis-secret
+                  key: REDIS_PASSWORD
+          ports:
+            - containerPort: 6379
+          command: ["sh", "-c"]
+          args:
+            - exec redis-server --appendonly yes --requirepass "$REDIS_PASSWORD"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+      {{- if not .Values.redis.persistence.enabled }}
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.redis.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app: {{ include "leaveat.name" . }}-redis
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.redis.persistence.size }}
+        {{- if .Values.redis.persistence.storageClass }}
+        storageClassName: {{ .Values.redis.persistence.storageClass }}
+        {{- end }}
+  {{- end }}
+{{- end }}

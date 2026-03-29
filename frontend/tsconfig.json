@@ -12,11 +12,7 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "@bafgo/core/browser": ["../../bafgo/packages/core/browser/index.ts"],
-      "@bafgo/core/browser/*": ["../../bafgo/packages/core/browser/*.ts"]
-    }
+    "baseUrl": "."
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

@@ -1,0 +1,42 @@
+{{- if and .Values.postgres.enabled .Values.postgres.backups.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "leaveat.fullname" . }}-postgres-backup
+spec:
+  schedule: {{ .Values.postgres.backups.schedule | quote }}
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ include "leaveat.name" . }}-postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: postgres-backup
+              image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+              env:
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "leaveat.fullname" . }}-postgres-secret
+                      key: POSTGRES_PASSWORD
+              command: ["sh", "-c"]
+              args:
+                - >-
+                  set -eu;
+                  export PGPASSWORD="$POSTGRES_PASSWORD";
+                  ts=$(date +%Y%m%d-%H%M%S);
+                  pg_dump -h {{ include "leaveat.fullname" . }}-postgres -U {{ .Values.postgres.user }} -d {{ .Values.postgres.database }} > /backups/leaveat-$ts.sql;
+                  find /backups -type f -name '*.sql' -mtime +{{ .Values.postgres.backups.retentionDays }} -delete
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: {{ include "leaveat.fullname" . }}-postgres-backups
+{{- end }}

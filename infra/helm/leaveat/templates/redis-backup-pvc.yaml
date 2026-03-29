@@ -1,0 +1,17 @@
+{{- if and .Values.redis.enabled .Values.redis.backups.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "leaveat.fullname" . }}-redis-backups
+  labels:
+    app: {{ include "leaveat.name" . }}-redis-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.redis.backups.size }}
+  {{- if .Values.redis.backups.storageClass }}
+  storageClassName: {{ .Values.redis.backups.storageClass }}
+  {{- end }}
+{{- end }}

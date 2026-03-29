@@ -1,0 +1,32 @@
+# Local development services for LeaveAt
+# Starts Postgres and Redis. Backend, license, and frontend run natively via npm.
+#
+# Usage:
+#   docker compose up -d        # start Postgres + Redis
+#   docker compose down         # stop and remove containers
+#   docker compose down -v      # also wipe volumes (fresh DB)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: leaveat
+      POSTGRES_PASSWORD: leaveat
+      POSTGRES_DB: leaveat
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

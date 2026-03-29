@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "leaveat.licenseName" . }}
+  labels:
+    app: {{ include "leaveat.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "leaveat.licenseName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "leaveat.licenseName" . }}
+    spec:
+      containers:
+        - name: license
+          image: "{{ .Values.license.image.repository }}:{{ .Values.license.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.license.port }}
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: BAFGO_LICENSE_PRODUCT
+              value: "leaveat"
+            - name: PORT
+              value: "{{ .Values.license.port }}"
+            - name: CORS_ORIGINS
+              value: "https://{{ .Values.ingress.host }}"
+            - name: FRONTEND_URL
+              value: "https://{{ .Values.ingress.host }}"
+            - name: WEBAUTHN_RP_NAME
+              value: "LeaveAt"
+            - name: WEBAUTHN_RP_ID
+              value: "{{ .Values.ingress.host }}"
+            - name: WEBAUTHN_ORIGIN
+              value: "https://{{ .Values.ingress.host }}"
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-redis-secret
+                  key: REDIS_URL
+            {{- end }}
+            {{- if .Values.postgres.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-postgres-secret
+                  key: DATABASE_URL
+            {{- end }}
+            - name: PRIVATE_KEY_PEM
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: PRIVATE_KEY_PEM
+            - name: PUBLIC_KEY_PEM
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: PUBLIC_KEY_PEM
+            - name: LEMONSQUEEZY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: LEMONSQUEEZY_API_KEY
+                  optional: true
+            - name: LEMONSQUEEZY_STORE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: LEMONSQUEEZY_STORE_ID
+                  optional: true
+            - name: LEMONSQUEEZY_VARIANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: LEMONSQUEEZY_VARIANT_ID
+                  optional: true
+            - name: LEMONSQUEEZY_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: LEMONSQUEEZY_WEBHOOK_SECRET
+                  optional: true
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: SMTP_HOST
+                  optional: true
+            - name: SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: SMTP_PORT
+                  optional: true
+            - name: SMTP_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: SMTP_SECURE
+                  optional: true
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: SMTP_USER
+                  optional: true
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: SMTP_PASS
+                  optional: true
+            - name: MAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: MAIL_FROM
+                  optional: true
+            - name: MAIL_NOTIFY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "leaveat.fullname" . }}-license-secret
+                  key: MAIL_NOTIFY
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.license.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.license.port }}
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          {{- with .Values.license.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
