@@ -1,6 +1,11 @@
 {
   "name": "leaveat",
   "version": "0.1.0",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sillygooseia/leaveat"
+  },
   "private": true,
   "description": "LeaveAt — employee scheduling tool built on the BafGo SDK",
   "scripts": {
