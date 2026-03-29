@@ -4,3 +4,7 @@ dist/
 *.env
 .env.*
 secrets/leaveat.json
+# dev-generated RSA key files
+license/keys/private.pem
+license/keys/public.pem
+license/keys/
