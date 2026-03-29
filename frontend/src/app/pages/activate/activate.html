@@ -1,0 +1,32 @@
+<div class="activate-page">
+  @switch (state()) {
+    @case ('loading') {
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Activating your license…</p>
+    }
+    @case ('success') {
+      <mat-icon class="icon success">check_circle</mat-icon>
+      <h2>Premium Activated!</h2>
+      <p>Your LeaveAt Premium license is now active on this device.<br>
+         Enjoy unlimited schedules, cloud backup, and more.</p>
+      <button mat-raised-button color="primary" (click)="goToSchedule()">
+        <mat-icon>schedule</mat-icon> Go to Schedule
+      </button>
+    }
+    @case ('already') {
+      <mat-icon class="icon success">workspace_premium</mat-icon>
+      <h2>Already Activated</h2>
+      <p>A Premium license is already active on this device.</p>
+      <button mat-raised-button color="primary" (click)="goToSchedule()">Go to Schedule</button>
+    }
+    @case ('error') {
+      <mat-icon class="icon error">error</mat-icon>
+      <h2>Activation Failed</h2>
+      <p>{{ errorMessage() }}</p>
+      <div class="error-actions">
+        <a mat-button routerLink="/premium">Get a new license</a>
+        <button mat-raised-button color="primary" (click)="goToSchedule()">Back to App</button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,143 @@
+<div class="wizard-container">
+
+  <!-- Step indicator -->
+  <div class="step-indicator">
+    <div class="step-dot" [class.active]="step() === 0" [class.done]="step() > 0"></div>
+    <div class="step-connector"></div>
+    <div class="step-dot" [class.active]="step() === 1" [class.done]="step() > 1"></div>
+    <div class="step-connector"></div>
+    <div class="step-dot" [class.active]="step() === 2"></div>
+  </div>
+
+  <!-- ── Step 0: Choose mode ─────────────────────────────────── -->
+  @if (step() === 0) {
+    <div class="wizard-header">
+      @if (isFirst) {
+        <mat-icon class="step-icon">event_note</mat-icon>
+        <h2>Welcome to LeaveAt!</h2>
+        <p>Let's get your first schedule set up. What are you scheduling for?</p>
+      } @else {
+        <mat-icon class="step-icon">add_circle_outline</mat-icon>
+        <h2>New Workspace</h2>
+        <p>Choose how you'll use this schedule.</p>
+      }
+    </div>
+
+    <div class="mode-cards">
+      <div class="mode-card" [class.selected]="selectedMode() === 'workplace'" (click)="selectMode('workplace')">
+        <div class="mode-card-check">
+          @if (selectedMode() === 'workplace') {
+            <mat-icon>check_circle</mat-icon>
+          }
+        </div>
+        <mat-icon class="mode-icon">work</mat-icon>
+        <h3>Workplace</h3>
+        <p>Manage shifts and hours for your team or business</p>
+      </div>
+
+      <div class="mode-card" [class.selected]="selectedMode() === 'family'" (click)="selectMode('family')">
+        <div class="mode-card-check">
+          @if (selectedMode() === 'family') {
+            <mat-icon>check_circle</mat-icon>
+          }
+        </div>
+        <mat-icon class="mode-icon">home</mat-icon>
+        <h3>Family</h3>
+        <p>Coordinate schedules for your household</p>
+      </div>
+
+      <div class="mode-card" [class.selected]="selectedMode() === 'personal'" (click)="selectMode('personal')">
+        <div class="mode-card-check">
+          @if (selectedMode() === 'personal') {
+            <mat-icon>check_circle</mat-icon>
+          }
+        </div>
+        <mat-icon class="mode-icon">person</mat-icon>
+        <h3>Personal</h3>
+        <p>Track your own private schedule — just for you</p>
+      </div>
+    </div>
+
+    <div class="wizard-actions">
+      @if (!isFirst) {
+        <button mat-button (click)="cancel()">Cancel</button>
+      }
+      <button mat-raised-button color="primary" [disabled]="!selectedMode()" (click)="goToName()">
+        Continue
+        <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- ── Step 1: Name ───────────────────────────────────────── -->
+  @if (step() === 1) {
+    <div class="wizard-header">
+      <mat-icon class="step-icon">drive_file_rename_outline</mat-icon>
+      <h2>Name your schedule</h2>
+      <p>Give it something easy to recognise.</p>
+    </div>
+
+    <div class="mode-badge">
+      <mat-icon>{{ selectedMode() === 'family' ? 'home' : selectedMode() === 'personal' ? 'person' : 'work' }}</mat-icon>
+      <span>{{ selectedMode() === 'family' ? 'Family' : selectedMode() === 'personal' ? 'Personal' : 'Workplace' }} mode</span>
+    </div>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Schedule name</mat-label>
+      <input matInput
+             [placeholder]="modePlaceholder"
+             [ngModel]="scheduleName()"
+             (ngModelChange)="scheduleName.set($event)"
+             (keyup.enter)="goToDone()"
+             autofocus>
+    </mat-form-field>
+
+    <div class="wizard-actions">
+      <button mat-button (click)="step.set(0)">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </button>
+      <button mat-raised-button color="primary" (click)="goToDone()">
+        Continue
+        <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- ── Step 2: Done ───────────────────────────────────────── -->
+  @if (step() === 2) {
+    <div class="done-step">
+      <mat-icon class="done-icon">check_circle</mat-icon>
+      <h2>You're all set!</h2>
+      <p class="done-subtitle">
+        <strong>{{ finalName }}</strong> is ready.<br>
+        Here's what to do next:
+      </p>
+
+      <ul class="tips-list">
+        <li>
+          <mat-icon>person_add</mat-icon>
+          <span>Add your {{ selectedMode() === 'family' ? 'family members' : selectedMode() === 'personal' ? 'first event by clicking on a day column' : 'employees using the panel on the left' }}</span>
+        </li>
+        @if (selectedMode() !== 'personal') {
+          <li>
+            <mat-icon>drag_indicator</mat-icon>
+            <span>Drag a {{ selectedMode() === 'family' ? 'member' : 'person' }} onto a day column to create a shift</span>
+          </li>
+        }
+        <li>
+          <mat-icon>share</mat-icon>
+          <span>Share your schedule as a read-only link when you're ready</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="wizard-actions">
+      <button mat-raised-button color="primary" (click)="finish()">
+        <mat-icon>play_arrow</mat-icon>
+        Get Started
+      </button>
+    </div>
+  }
+
+</div>

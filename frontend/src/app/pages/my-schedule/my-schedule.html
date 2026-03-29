@@ -1,0 +1,210 @@
+<mat-toolbar color="primary">
+  <mat-icon>calendar_today</mat-icon>
+  <span style="margin-left: 0.5rem;">{{ scheduleData()?.scheduleName || 'My Schedule' }}</span>
+  <span class="spacer"></span>
+  @if (scheduleData()) {
+    <span class="member-badge">{{ scheduleData()!.memberName }}</span>
+  }
+</mat-toolbar>
+
+<div class="my-schedule-container">
+  <!-- Schedule switcher — shown when this device has multiple registrations -->
+  @if (allRegistrations().length > 1) {
+    <div class="schedule-switcher">
+      @for (reg of allRegistrations(); track reg.accessTokenId) {
+        <button class="switcher-btn"
+                [class.switcher-btn--active]="activeAccess()?.accessTokenId === reg.accessTokenId"
+                (click)="switchTo(reg)">
+          <mat-icon>{{ reg.mode === 'family' ? 'family_restroom' : reg.mode === 'personal' ? 'person' : 'work' }}</mat-icon>
+          <span class="switcher-name">{{ reg.workspaceName }}</span>
+          <span class="switcher-member">{{ reg.memberName }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your schedule...</p>
+    </div>
+  } @else if (error() === 'no-access') {
+    <div class="error-state">
+      <mat-icon>no_accounts</mat-icon>
+      <h2>No Schedule Found</h2>
+      <p>This device hasn't been registered for a schedule. Request an invite link from your admin.</p>
+      <a mat-stroked-button routerLink="/home">Go Home</a>
+    </div>
+  } @else if (error() === 'revoked') {
+    <div class="error-state">
+      <mat-icon>block</mat-icon>
+      <h2>Access Revoked</h2>
+      <p>Your access to this schedule has been removed. Contact your admin for a new invite.</p>
+      <a mat-stroked-button routerLink="/home">Go Home</a>
+    </div>
+  } @else if (error() === 'failed') {
+    <div class="error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h2>Unable to Load</h2>
+      <p>Could not connect to the server. Please check your connection and try again.</p>
+      <button mat-stroked-button (click)="ngOnInit()">Retry</button>
+    </div>
+  } @else if (scheduleData()) {
+    @if (scheduleData()!.visibility === 'own') {
+      <div class="schedule-header">
+        <h2>{{ scheduleData()!.scheduleName }}</h2>
+        <p class="view-hint">Showing your shifts only</p>
+      </div>
+    } @else {
+      <div class="schedule-header">
+        <h2>{{ scheduleData()!.scheduleName }}</h2>
+      </div>
+
+      <!-- Employee Legend (full view only) -->
+      @if (displayedEmployees().length > 0) {
+        <mat-card class="employee-legend">
+          <mat-card-header>
+            <mat-card-title>
+              {{ scheduleData()!.mode === 'family' ? 'Family Members' : 'Team Members' }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="employee-list">
+              @for (employee of displayedEmployees(); track employee.id) {
+                <div class="employee-item">
+                  <div class="color-indicator" [style.background-color]="employee.color"></div>
+                  <span class="employee-name">{{ employee.name }}</span>
+                  <span class="employee-role">{{ employee.role }}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+
+    <!-- ── Activities ─────────────────────────────────────────── -->
+    @if (upcomingActivities().length > 0) {
+      <section class="activities-section">
+        <h3 class="section-title">
+          <mat-icon>directions_car</mat-icon>
+          Upcoming Activities
+        </h3>
+
+        @for (activity of upcomingActivities(); track activity.id) {
+          <mat-card class="activity-card">
+            <mat-card-content>
+              <div class="activity-header">
+                <mat-icon class="activity-icon">{{ activityIcon(activity.activityType) }}</mat-icon>
+                <div class="activity-meta">
+                  <span class="activity-title">{{ activity.title }}</span>
+                  @if (activity.location) {
+                    <span class="activity-location">
+                      <mat-icon class="inline-icon">place</mat-icon>{{ activity.location }}
+                    </span>
+                  }
+                  <span class="activity-time">
+                    {{ activity.startAt | date:'EEE, MMM d · h:mm a' }}
+                    @if (activity.endAt) { – {{ activity.endAt | date:'h:mm a' }} }
+                  </span>
+                  @if (activity.participants.length > 0) {
+                    <span class="activity-participants">
+                      <mat-icon class="inline-icon">people</mat-icon>
+                      {{ activity.participants.join(', ') }}
+                    </span>
+                  }
+                  @if (activity.notes) {
+                    <span class="activity-notes">{{ activity.notes }}</span>
+                  }
+                </div>
+              </div>
+
+              <mat-divider class="activity-divider"></mat-divider>
+
+              <!-- Volunteer slots — family members can claim any open role -->
+              @if (activity.volunteers.length === 0) {
+                <p class="no-slots-note">No volunteer roles for this activity.</p>
+              } @else {
+                <div class="claim-rows">
+                  @for (slot of activity.volunteers; track slot.id) {
+                    <div class="claim-row">
+                      <mat-icon class="claim-icon">person_raised_hand</mat-icon>
+                      <span class="claim-label">{{ slot.label }}</span>
+                      @if (slot.name) {
+                        <span class="claim-name" [class.mine]="isMyClaim(activity, slot.id)">
+                          {{ slot.name }}
+                          @if (isMyClaim(activity, slot.id)) {
+                            <span class="you-badge">you</span>
+                          }
+                        </span>
+                        @if (isMyClaim(activity, slot.id)) {
+                          <button mat-stroked-button class="unclaim-btn"
+                                  [disabled]="claimingEventId() === activity.id"
+                                  (click)="unclaim(activity, slot.id)">
+                            Can't make it
+                          </button>
+                        }
+                      } @else {
+                        <button mat-flat-button color="primary" class="claim-btn"
+                                [disabled]="claimingEventId() === activity.id"
+                                (click)="claim(activity, slot.id)">
+                          I'll help
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </section>
+    }
+
+    <!-- ── Schedule Grid ─────────────────────────────────────── -->
+    <div class="schedule-grid">
+      @for (day of daysOfWeek; track day) {
+        @let dayShifts = getShiftsForDay(day);
+        @if (scheduleData()!.visibility === 'own' && dayShifts.length === 0) {
+          <!-- skip empty days in personal view -->
+        } @else {
+          <div class="day-column">
+            <div class="day-header">
+              <h3>{{ dayNames[day] }}</h3>
+            </div>
+
+            <div class="day-content">
+              @if (dayShifts.length === 0) {
+                <div class="empty-day">
+                  <span>No shifts</span>
+                </div>
+              } @else {
+                @for (shift of dayShifts; track shift.id) {
+                  <div
+                    class="shift-card"
+                    [style.background-color]="getEmployee(shift.employeeId)?.color + '20'"
+                    [style.border-left-color]="getEmployee(shift.employeeId)?.color">
+                    <div class="shift-header">
+                      @if (scheduleData()!.visibility === 'all') {
+                        <span class="employee-name">{{ getEmployee(shift.employeeId)?.name }}</span>
+                      }
+                      <span class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</span>
+                    </div>
+                    @if (shift.notes) {
+                      <div class="shift-notes">{{ shift.notes }}</div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="footer-info">
+      <mat-icon>lock</mat-icon>
+      <p>Read-only view &mdash; last updated {{ scheduleData()!.updatedAt | date:'medium' }}</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,134 @@
+<div class="schedule-grid">
+  @for (day of daysOfWeek; track day) {
+    <div class="day-column"
+         [class.drag-over]="dragOverDay === day"
+         [class.today]="isToday(day)"
+         (dragover)="onDragOver($event, day)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event, day)">
+      <div class="day-header">
+        <h3>{{ dayNames[day] }}</h3>
+        <span class="day-date">{{ getDateForDay(day) }}</span>
+        @if (personalMode) {
+          <button mat-icon-button (click)="openAddShiftDialog(day)" matTooltip="Add event">
+            <mat-icon>add_circle_outline</mat-icon>
+          </button>
+        } @else {
+          <button mat-icon-button [matMenuTriggerFor]="addTypeMenu" matTooltip="Add shift or activity">
+            <mat-icon>add_circle_outline</mat-icon>
+          </button>
+          <mat-menu #addTypeMenu="matMenu">
+            <button mat-menu-item (click)="openAddShiftDialog(day)">
+              <mat-icon>event_note</mat-icon>
+              <span>Add Shift</span>
+            </button>
+            <button mat-menu-item (click)="requestAddActivity.emit(day)">
+              <mat-icon>sports_soccer</mat-icon>
+              <span>Add Activity</span>
+            </button>
+          </mat-menu>
+        }
+      </div>
+      
+      <div class="day-content" (dblclick)="openAddShiftDialog(day)">
+        @for (activity of getActivitiesForDay(day); track activity.id) {
+          @let vc = getVolunteerCount(activity);
+          <div class="activity-chip">
+            <mat-icon class="activity-chip-icon">{{ getActivityIcon(activity.activityType) }}</mat-icon>
+            <div class="activity-chip-body">
+              <span class="activity-chip-title">{{ activity.title }}</span>
+              <span class="activity-chip-time">{{ activity.startAt | date:'h:mm a' }}</span>
+            </div>
+            @if (vc.total > 0) {
+              <span class="activity-chip-vol" [class.all-claimed]="vc.claimed === vc.total"
+                    [title]="vc.claimed + ' of ' + vc.total + ' slots filled'">
+                {{ vc.claimed }}/{{ vc.total }}
+              </span>
+            }
+          </div>
+        }
+        @if (getShiftsForDay(day).length === 0) {
+          <div class="empty-day" (click)="openAddShiftDialog(day)">
+            <mat-icon>add</mat-icon>
+            <span>{{ personalMode ? 'Click to add an event' : 'Click to add a shift' }}</span>
+          </div>
+        } @else {
+          @for (shift of getShiftsForDay(day); track shift.id) {
+            <div 
+              class="shift-card"
+              [class.conflict]="hasConflict(shift)"
+              (click)="openEditShiftDialog(shift)"
+              [style.background-color]="personalMode ? 'rgba(92,107,192,0.12)' : (getEmployee(shift.employeeId)?.color + '20')"
+              [style.border-left-color]="personalMode ? '#5c6bc0' : getEmployee(shift.employeeId)?.color"
+              [matTooltip]="personalMode ? (shift.notes || 'Click to edit') : getConflictTooltip(shift)">
+              <div class="shift-header">
+                <div>
+                  @if (!personalMode) {
+                    <span class="employee-name">{{ getEmployee(shift.employeeId)?.name }}</span>
+                  }
+                  <span class="shift-time">{{ shift.startTime }} - {{ shift.endTime }}</span>
+                </div>
+                @if (!personalMode && hasConflict(shift)) {
+                  <mat-icon class="conflict-icon">warning</mat-icon>
+                }
+              </div>
+              @if (shift.notes) {
+                <div class="shift-notes">{{ shift.notes }}</div>
+              }
+            </div>
+          }
+        }
+      </div>
+      
+      @if (isCoverageEnabled()) {
+        @if (isRoomRatioMode()) {
+          <div class="coverage-rooms-footer">
+            @for (rs of getRoomCoverageStatuses(day); track rs.room.id) {
+              <div class="room-coverage-row" [ngClass]="getRoomStatusClass(rs)" [matTooltip]="getRoomTooltip(rs)">
+                <span class="room-coverage-name">{{ rs.room.name }}</span>
+                <span class="room-coverage-count">{{ rs.scheduled }}/{{ rs.required }}</span>
+              </div>
+            }
+            @if (getRoomCoverageStatuses(day).length === 0) {
+              <div class="no-rooms-msg">No rooms defined</div>
+            }
+          </div>
+        } @else if (isTimeBasedMode()) {
+          <div class="coverage-slots-footer">
+            @for (ts of getTimeSlotCoverageStatuses(day); track ts.slot.startTime) {
+              <div class="slot-coverage-row" [ngClass]="'coverage-' + ts.status.status" [matTooltip]="getSlotTooltip(ts.slot, ts.status, ts.hasPartial)">
+                <span class="slot-coverage-time">{{ ts.slot.startTime }}–{{ ts.slot.endTime }}</span>
+                <span class="slot-coverage-count">{{ ts.hasPartial ? '~' : '' }}{{ ts.status.scheduled }}/{{ ts.status.required }}</span>
+                <button class="slot-expand-btn"
+                        (click)="toggleSlotBreakdown(day, ts.slot.startTime); $event.stopPropagation()"
+                        [matTooltip]="isSlotExpanded(day, ts.slot.startTime) ? 'Hide hourly breakdown' : 'Show hourly breakdown'">
+                  <mat-icon>{{ isSlotExpanded(day, ts.slot.startTime) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+              @if (isSlotExpanded(day, ts.slot.startTime)) {
+                <div class="slot-hourly-breakdown">
+                  @for (hr of getHourlyBreakdownForSlot(day, ts.slot); track hr.hourLabel) {
+                    <div class="hour-row" [ngClass]="'coverage-' + hr.status">
+                      <span class="hour-label">{{ hr.hourLabel }}</span>
+                      <span class="hour-count">{{ hr.count }}/{{ hr.required }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            }
+            @if (getTimeSlotCoverageStatuses(day).length === 0) {
+              <div class="no-rooms-msg">No time slots</div>
+            }
+          </div>
+        } @else {
+          <div class="coverage-footer"
+               [ngClass]="getCoverageClass(getCoverageStatus(day))"
+               [matTooltip]="getCoverageTooltip(getCoverageStatus(day))">
+            <mat-icon>people</mat-icon>
+            <span>{{ getCoverageText(getCoverageStatus(day)) }}</span>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

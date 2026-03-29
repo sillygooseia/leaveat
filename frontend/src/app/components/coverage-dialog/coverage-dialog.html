@@ -1,0 +1,193 @@
+<h2 mat-dialog-title>Coverage Requirements</h2>
+
+<mat-dialog-content>
+  <div class="coverage-setup">
+    <div class="enable-section">
+      <label class="enable-label">
+        <input type="checkbox" [checked]="enabled()" (change)="enabled.set($any($event.target).checked)">
+        <span>Enable coverage tracking</span>
+      </label>
+      <p class="help-text">Track minimum staffing requirements and get alerts when understaffed</p>
+    </div>
+
+    @if (enabled()) {
+      <div class="templates-section">
+        <h3>Quick Templates</h3>
+        <div class="template-grid">
+          @for (template of templates; track template.id) {
+            <button mat-stroked-button (click)="applyTemplate(template.id)" class="template-card">
+              <div class="template-name">{{ template.name }}</div>
+              <div class="template-desc">{{ template.description }}</div>
+            </button>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="mode-section">
+        <h3>Coverage Mode</h3>
+        <mat-radio-group [value]="mode()" (change)="mode.set($any($event.value))">
+          <mat-radio-button value="simple">
+            <strong>Simple</strong> — Same minimum for all days and times
+          </mat-radio-button>
+          <mat-radio-button value="time-based">
+            <strong>Time-based</strong> — Different minimums per time slot
+          </mat-radio-button>
+          <mat-radio-button value="room-ratio">
+            <strong>Rooms &amp; Ratios</strong> — Per-room staff-to-child ratios
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Simple mode -->
+      @if (mode() === 'simple') {
+        <div class="simple-config">
+          <mat-form-field>
+            <mat-label>Minimum Staff Required</mat-label>
+            <input matInput type="number" [ngModel]="simpleMinStaff()" (ngModelChange)="simpleMinStaff.set($event)"
+                   min="1" max="50" required>
+            <mat-hint>Applies to all days</mat-hint>
+          </mat-form-field>
+
+          <div class="preview-box">
+            <mat-icon>info</mat-icon>
+            <div>
+              <strong>Coverage Rule:</strong>
+              <p>At least {{ simpleMinStaff() }} {{ simpleMinStaff() === 1 ? 'employee' : 'employees' }} must be scheduled each day.</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Time-based mode -->
+      @if (mode() === 'time-based') {
+        <div class="time-based-config">
+          <p class="mode-help">Define minimum staffing for specific time windows each day. Days with no slots are not enforced.</p>
+          @for (day of allDays; track day) {
+            <div class="day-row">
+              <div class="day-row-header">
+                <span class="day-row-label">{{ dayNames[day] }}</span>
+                <button mat-icon-button (click)="addTimeSlot(day)" matTooltip="Add time slot">
+                  <mat-icon>add_circle_outline</mat-icon>
+                </button>
+              </div>
+              @if (getSlotsForDay(day).length === 0) {
+                <div class="no-slots">No requirements &mdash; click + to add</div>
+              }
+              @for (slot of getSlotsForDay(day); track $index) {
+                <div class="time-slot-row">
+                  <mat-form-field class="time-field" appearance="outline">
+                    <mat-label>From</mat-label>
+                    <input matInput type="time" [ngModel]="slot.startTime"
+                           (ngModelChange)="updateSlotField(day, $index, 'startTime', $event)">
+                  </mat-form-field>
+                  <mat-form-field class="time-field" appearance="outline">
+                    <mat-label>To</mat-label>
+                    <input matInput type="time" [ngModel]="slot.endTime"
+                           (ngModelChange)="updateSlotField(day, $index, 'endTime', $event)">
+                  </mat-form-field>
+                  <mat-form-field class="staff-field" appearance="outline">
+                    <mat-label>Min Staff</mat-label>
+                    <input matInput type="number" [ngModel]="slot.minStaff"
+                           (ngModelChange)="updateSlotMinStaff(day, $index, +$event)" min="1">
+                  </mat-form-field>
+                  <button mat-icon-button color="warn" (click)="removeTimeSlot(day, $index)" matTooltip="Remove">
+                    <mat-icon>remove_circle_outline</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Room-ratio mode -->
+      @if (mode() === 'room-ratio') {
+        <div class="room-ratio-config">
+          <p class="mode-help">
+            Each room's required staff is calculated from its capacity ÷ ratio.
+            Assign staff to rooms when creating shifts for per-room tracking.
+          </p>
+          <div class="rooms-list">
+            @for (room of rooms(); track room.id) {
+              <div class="room-card">
+                <div class="room-card-header">
+                  <mat-icon class="room-icon">door_front</mat-icon>
+                  <mat-form-field class="room-name-field" appearance="outline">
+                    <mat-label>Room Name</mat-label>
+                    <input matInput [ngModel]="room.name" (ngModelChange)="updateRoomField(room.id, 'name', $event)">
+                  </mat-form-field>
+                  <button mat-icon-button color="warn" (click)="removeRoom(room.id)" matTooltip="Remove room">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+                <mat-form-field class="full-width" appearance="outline">
+                  <mat-label>Age Group (optional)</mat-label>
+                  <input matInput [ngModel]="room.ageGroup" (ngModelChange)="updateRoomField(room.id, 'ageGroup', $event)"
+                         placeholder="e.g. 0\u201318 months">
+                </mat-form-field>
+                <div class="room-ratio-row">
+                  <mat-form-field class="capacity-field" appearance="outline">
+                    <mat-label>Capacity</mat-label>
+                    <input matInput type="number" [ngModel]="room.capacity"
+                           (ngModelChange)="updateRoomField(room.id, 'capacity', +$event)" min="1">
+                    <mat-hint>children</mat-hint>
+                  </mat-form-field>
+                  <span class="ratio-divider">÷</span>
+                  <mat-form-field class="ratio-field" appearance="outline">
+                    <mat-label>Children per Staff</mat-label>
+                    <input matInput type="number" [ngModel]="room.ratioChildren"
+                           (ngModelChange)="updateRoomField(room.id, 'ratioChildren', +$event)" min="1">
+                  </mat-form-field>
+                  <div class="ratio-result">
+                    <span class="ratio-equals">=</span>
+                    <strong class="staff-required">{{ calcRoomMinStaff(room) }} staff</strong>
+                  </div>
+                </div>
+                <mat-form-field class="full-width" appearance="outline">
+                  <mat-label>Required Role (optional)</mat-label>
+                  <input matInput [ngModel]="room.requiredRole"
+                         (ngModelChange)="updateRoomField(room.id, 'requiredRole', $event || undefined)"
+                         placeholder="e.g. Infant Teacher">
+                  <mat-hint>Only staff with this role count toward this room’s ratio</mat-hint>
+                </mat-form-field>
+              </div>
+            }
+            @if (rooms().length === 0) {
+              <div class="no-rooms-hint">No rooms defined &mdash; apply a template above or add one below.</div>
+            }
+          </div>
+          <button mat-stroked-button (click)="addRoom()" class="add-room-btn">
+            <mat-icon>add</mat-icon>
+            Add Room
+          </button>
+          @if (rooms().length > 0) {
+            <div class="preview-box">
+              <mat-icon>info</mat-icon>
+              <div>
+                <strong>Total minimum staff required per day: {{ totalRoomsRequired() }}</strong>
+                <p>Assign staff to specific rooms when creating shifts for per-room tracking.</p>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (enabled()) {
+    <button mat-button color="warn" (click)="disable()">
+      Disable Coverage
+    </button>
+  }
+  <span class="spacer"></span>
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()">
+    {{ enabled() ? 'Save' : 'Disable' }}
+  </button>
+</mat-dialog-actions>

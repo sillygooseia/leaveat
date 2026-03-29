@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Copy Shifts Between Days</h2>
+
+<mat-dialog-content>
+  <div class="copy-day-setup">
+    <div class="from-section">
+      <h3>Copy from:</h3>
+      <mat-radio-group [(ngModel)]="fromDay" (ngModelChange)="fromDay.set($event)">
+        @for (day of dayNames; track $index) {
+          <mat-radio-button [value]="$index">{{ day }}</mat-radio-button>
+        }
+      </mat-radio-group>
+    </div>
+
+    <div class="arrow-section">
+      <mat-icon>arrow_downward</mat-icon>
+    </div>
+
+    <div class="to-section">
+      <h3>Copy to:</h3>
+      <div class="day-checkboxes">
+        @for (day of dayNames; track $index) {
+          <label class="day-checkbox" [class.disabled]="isDayDisabled($index)">
+            <input 
+              type="checkbox" 
+              [checked]="isDaySelected($index)"
+              [disabled]="isDayDisabled($index)"
+              (change)="toggleDay($index)">
+            <span>{{ day }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <div class="help-text">
+      <mat-icon>info</mat-icon>
+      <p>This will copy all shifts from the selected day to the checked days. Existing shifts on target days will be kept.</p>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="copy()" [disabled]="!isValid">
+    Copy Shifts
+  </button>
+</mat-dialog-actions>

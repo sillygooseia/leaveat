@@ -1,0 +1,87 @@
+<mat-toolbar color="primary">
+  <mat-icon>calendar_today</mat-icon>
+  <span style="margin-left: 0.5rem;">{{ schedule()?.name || 'Schedule' }}</span>
+  <span class="spacer"></span>
+  <span class="view-only-badge">View Only</span>
+</mat-toolbar>
+
+<div class="public-view-container">
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading schedule...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <h2>{{ error() }}</h2>
+      <p>Please check the link and try again.</p>
+    </div>
+  } @else if (schedule()) {
+    <div class="schedule-header">
+      <h2>{{ schedule()!.name }}</h2>
+      @if (expiresAt()) {
+        <p class="expiry-info">This link expires: {{ formatExpiration() }}</p>
+      }
+    </div>
+
+    <!-- Employee Legend -->
+    @if (schedule()!.employees.length > 0) {
+      <mat-card class="employee-legend">
+        <mat-card-header>
+          <mat-card-title>{{ schedule()!.mode === 'family' ? 'Family Members' : 'Team Members' }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="employee-list">
+            @for (employee of schedule()!.employees; track employee.id) {
+              <div class="employee-item">
+                <div class="color-indicator" [style.background-color]="employee.color"></div>
+                <span class="employee-name">{{ employee.name }}</span>
+                <span class="employee-role">{{ employee.role }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Schedule Grid (Read-Only) -->
+    <div class="schedule-grid">
+      @for (day of daysOfWeek; track day) {
+        <div class="day-column">
+          <div class="day-header">
+            <h3>{{ dayNames[day] }}</h3>
+          </div>
+          
+          <div class="day-content">
+            @if (getShiftsForDay(day).length === 0) {
+              <div class="empty-day">
+                <span>No shifts</span>
+              </div>
+            } @else {
+              @for (shift of getShiftsForDay(day); track shift.id) {
+                <div 
+                  class="shift-card" 
+                  [style.background-color]="getEmployee(shift.employeeId)?.color + '20'"
+                  [style.border-left-color]="getEmployee(shift.employeeId)?.color">
+                  <div class="shift-header">
+                    <span class="employee-name">{{ getEmployee(shift.employeeId)?.name }}</span>
+                    <span class="shift-time">{{ shift.startTime }} - {{ shift.endTime }}</span>
+                  </div>
+                  @if (shift.notes) {
+                    <div class="shift-notes">{{ shift.notes }}</div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="footer-info">
+      <mat-icon>lock</mat-icon>
+      <p>This is a read-only view. You cannot edit this schedule.</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,74 @@
+<div class="premium-page">
+
+  <a mat-button routerLink="/" class="back-link">
+    <mat-icon>arrow_back</mat-icon> Back to Schedule
+  </a>
+
+  <div class="hero">
+    <mat-icon class="hero-icon">workspace_premium</mat-icon>
+    <h1>LeaveAt Premium</h1>
+    <p class="hero-sub">All the scheduling power you need — still no accounts.</p>
+  </div>
+
+  @if (!isPremium()) {
+    <!-- Coming soon card -->
+    <div class="pricing-card">
+      <div class="coming-soon-badge">Coming Soon</div>
+      <p class="coming-soon-text">
+        Paid licenses are on the way — for now, we're running a free early-access trial.
+      </p>
+      <a mat-raised-button color="primary" class="cta-btn" href="#promo-section" routerLink="/home">
+        Claim a Free License
+      </a>
+      <button mat-button class="activate-link" (click)="openActivation()">
+        Already have a license? Activate it →
+      </button>
+    </div>
+  } @else {
+    <app-premium-status></app-premium-status>
+  }
+
+  <!-- Feature comparison table -->
+  <div class="feature-table">
+    <div class="feature-header">
+      <div class="feature-label"></div>
+      <div class="plan-col free">Free</div>
+      <div class="plan-col premium">
+        <mat-icon style="font-size:16px;vertical-align:middle;color:#f9a825">workspace_premium</mat-icon>
+        Premium
+      </div>
+    </div>
+
+    @for (f of features; track f.label) {
+      <div class="feature-row">
+        <div class="feature-label">
+          @if (f.label === 'Number of schedules') {
+            <span>Number of schedules</span>
+          } @else {
+            {{ f.label }}
+          }
+        </div>
+        <div class="plan-col free">
+          @if (f.label === 'Number of schedules') {
+            <span class="muted">1</span>
+          } @else if (f.free) {
+            <mat-icon class="check">check_circle</mat-icon>
+          } @else {
+            <mat-icon class="cross">remove</mat-icon>
+          }
+        </div>
+        <div class="plan-col premium">
+          @if (f.label === 'Number of schedules') {
+            <span class="unlimited">Unlimited</span>
+          } @else {
+            <mat-icon class="check">check_circle</mat-icon>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <p class="footer-note">
+    No accounts. No passwords. License stored locally on your device.
+  </p>
+</div>

@@ -1,0 +1,109 @@
+<h2 mat-dialog-title>
+  <mat-icon style="vertical-align:middle;margin-right:8px;color:#f9a825">workspace_premium</mat-icon>
+  Activate Premium
+</h2>
+
+<mat-dialog-content>
+  <mat-tab-group animationDuration="200ms">
+
+    <!-- ── Paste token ─────────────────────────────────────────────────────── -->
+    <mat-tab label="Paste Token">
+      <div class="tab-content">
+        <p class="tab-desc">Paste your license token below. You can get one after purchase, or generate a dev token for testing.</p>
+
+        <mat-form-field class="full-width">
+          <mat-label>License token (JWT)</mat-label>
+          <textarea matInput rows="5" [(ngModel)]="pasteToken" placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+        </mat-form-field>
+
+        @if (pasteError()) {
+          <p class="error-text"><mat-icon>error</mat-icon> {{ pasteError() }}</p>
+        }
+
+        <button mat-raised-button color="primary" class="full-width"
+                (click)="activateFromPaste()" [disabled]="pasteLoading() || !pasteToken().trim()">
+          @if (pasteLoading()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+          Activate
+        </button>
+      </div>
+    </mat-tab>
+
+    <!-- ── Restore code ────────────────────────────────────────────────────── -->
+    <mat-tab label="Restore Code">
+      <div class="tab-content">
+        <p class="tab-desc">Enter the 8-character restore code you generated from another device.</p>
+
+        <mat-form-field class="full-width">
+          <mat-label>8-character code</mat-label>
+          <input matInput [(ngModel)]="restoreCode" maxlength="8" placeholder="ABCD1234"
+                 style="letter-spacing:0.2em;font-size:1.2em;text-transform:uppercase">
+        </mat-form-field>
+
+        @if (codeError()) {
+          <p class="error-text"><mat-icon>error</mat-icon> {{ codeError() }}</p>
+        }
+
+        <button mat-raised-button color="primary" class="full-width"
+                (click)="activateFromCode()" [disabled]="codeLoading() || restoreCode().trim().length !== 8">
+          @if (codeLoading()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+          Restore License
+        </button>
+      </div>
+    </mat-tab>
+
+    <!-- ── QR scan ─────────────────────────────────────────────────────────── -->
+    <mat-tab label="Scan QR">
+      <div class="tab-content">
+        <p class="tab-desc">Scan the QR code exported from your other device.</p>
+
+        <div class="qr-container">
+          <video #qrVideo class="qr-video" playsinline></video>
+          @if (!qrVideoRef) {
+            <div class="qr-placeholder">
+              <mat-icon>qr_code_scanner</mat-icon>
+              <p>Camera preview will appear here</p>
+            </div>
+          }
+        </div>
+
+        @if (qrError()) {
+          <p class="error-text"><mat-icon>error</mat-icon> {{ qrError() }}</p>
+        }
+
+        <div class="qr-actions">
+          <button mat-raised-button color="primary" (click)="startQrScan(qrVideo)" [disabled]="qrLoading()">
+            @if (qrLoading()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+            <mat-icon>camera_alt</mat-icon> Start Camera
+          </button>
+          <button mat-button (click)="stopQrScan()">Stop</button>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ── Passkey ─────────────────────────────────────────────────────────── -->
+    <mat-tab label="Passkey">
+      <div class="tab-content">
+        <p class="tab-desc">Authenticate with a passkey you previously registered for your license.</p>
+
+        <div class="passkey-icon">
+          <mat-icon>fingerprint</mat-icon>
+        </div>
+
+        @if (passkeyError()) {
+          <p class="error-text"><mat-icon>error</mat-icon> {{ passkeyError() }}</p>
+        }
+
+        <button mat-raised-button color="primary" class="full-width"
+                (click)="activateFromPasskey()" [disabled]="passkeyLoading()">
+          @if (passkeyLoading()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner> }
+          <mat-icon>fingerprint</mat-icon> Authenticate with Passkey
+        </button>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancel</button>
+</mat-dialog-actions>

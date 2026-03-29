@@ -1,0 +1,108 @@
+<header class="header">
+  <div class="container">
+    <a routerLink="/home" class="logo">
+      <mat-icon class="logo-icon">location_on</mat-icon>
+      <span class="logo-text">LeaveAt</span>
+    </a>
+    <nav class="nav">
+      <a routerLink="/how-it-works" class="nav-link">How It Works</a>
+      <a routerLink="/premium" class="nav-link nav-link-premium">✦ Premium</a>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+        Start Scheduling
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <h1 class="page-title">About LeaveAt</h1>
+      <p class="page-subtitle">A simple scheduling tool built for people who just want to get on with it.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container content-grid">
+      <div class="content-block">
+        <mat-icon class="block-icon">lightbulb</mat-icon>
+        <h2>Why We Built This</h2>
+        <p>
+          Most scheduling tools are built for enterprise teams — loaded with features no small business
+          or family will ever use, and guarded behind mandatory accounts and monthly fees.
+        </p>
+        <p>
+          We built LeaveAt because scheduling a small team should be as easy as writing on a whiteboard.
+          No logins. No setup. Just open it, build your schedule, and share a link.
+        </p>
+      </div>
+
+      <div class="content-block">
+        <mat-icon class="block-icon">storefront</mat-icon>
+        <h2>Who It's For</h2>
+        <ul class="value-list">
+          <li><mat-icon>check</mat-icon> Small businesses — cafes, shops, salons, studios</li>
+          <li><mat-icon>check</mat-icon> Volunteer groups and community teams</li>
+          <li><mat-icon>check</mat-icon> Families coordinating schedules and routines</li>
+          <li><mat-icon>check</mat-icon> Clubs, churches, and event crews</li>
+          <li><mat-icon>check</mat-icon> Anyone who just needs a weekly view, shared fast</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2 class="section-title">Our Principles</h2>
+      <div class="principles-grid">
+        <div class="principle-card">
+          <mat-icon class="principle-icon">lock_open</mat-icon>
+          <h3>No Accounts Required</h3>
+          <p>Your schedule lives in your browser. Nothing is tied to an account or email address.</p>
+        </div>
+        <div class="principle-card">
+          <mat-icon class="principle-icon">devices</mat-icon>
+          <h3>Local-First</h3>
+          <p>All data is stored locally. The cloud is only used when you choose to share.</p>
+        </div>
+        <div class="principle-card">
+          <mat-icon class="principle-icon">hourglass_bottom</mat-icon>
+          <h3>Ephemeral by Design</h3>
+          <p>Share links expire automatically. Nothing lingers unless you want it to.</p>
+        </div>
+        <div class="principle-card">
+          <mat-icon class="principle-icon">sentiment_satisfied</mat-icon>
+          <h3>Friendly, Not Corporate</h3>
+          <p>This is a tool, not a system. We keep it approachable and free from bloat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container cta-section">
+      <h2>Ready to make your first schedule?</h2>
+      <p>No sign-up. No account. Just start.</p>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-btn">
+        Get Started — It's Free
+      </button>
+      <p class="cta-note">
+        Need more? <a routerLink="/premium" class="inline-link">See Premium</a> &nbsp;·&nbsp;
+        Questions? <a routerLink="/help" class="inline-link">Visit Help</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <nav class="footer-nav">
+      <a routerLink="/about" class="footer-link">About</a>
+      <a routerLink="/help" class="footer-link">Help</a>
+      <a routerLink="/how-it-works" class="footer-link">How It Works</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </nav>
+    <p class="footer-copyright">© 2024 LeaveAt. Simple schedules, shared easily.</p>
+  </div>
+</footer>

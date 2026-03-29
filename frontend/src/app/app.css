@@ -1,0 +1,23 @@
+/* Global app styles moved to schedule page */
+button {
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.result {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+pre {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}

@@ -1,0 +1,70 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.export-options {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-width: 460px;
+}
+
+.card-divider {
+  margin: 0 16px;
+  align-self: stretch;
+}
+
+.export-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 12px 4px;
+  gap: 8px;
+}
+
+.card-icon {
+  font-size: 44px;
+  height: 44px;
+  width: 44px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.export-card h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.export-card p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.export-card button {
+  margin-top: 8px;
+  width: 100%;
+}
+
+@media (max-width: 520px) {
+  .export-options {
+    flex-direction: column;
+    min-width: unset;
+  }
+
+  .card-divider {
+    display: none;
+  }
+}

@@ -1,0 +1,57 @@
+<div class="employee-panel-inner">
+  <div class="panel-toolbar">
+    <span class="employee-count">{{ employees().length }} {{ employees().length === 1 ? 'person' : 'people' }}</span>
+    <button mat-raised-button color="primary" (click)="openAddDialog()">
+      <mat-icon>person_add</mat-icon>
+      Add
+    </button>
+  </div>
+
+  @if (employees().length === 0) {
+    <div class="empty-state">
+      <mat-icon>people_outline</mat-icon>
+      <p>{{ mode() === 'family' ? 'No members yet' : 'No employees yet' }}</p>
+      <span>{{ mode() === 'family' ? 'Add family members to start scheduling' : 'Add team members to start scheduling' }}</span>
+    </div>
+  } @else {
+    <div class="employee-list">
+      <p class="drag-hint"><mat-icon>drag_indicator</mat-icon> Drag onto a day to schedule</p>
+      @for (employee of employees(); track employee.id) {
+        <div class="employee-card"
+             draggable="true"
+             (dragstart)="onDragStart($event, employee)"
+             (dragend)="onDragEnd()">
+          <div class="employee-avatar" [style.background-color]="employee.color">
+            {{ employee.name.charAt(0).toUpperCase() }}
+          </div>
+
+          <div class="employee-info">
+            <div class="employee-name">{{ employee.name }}</div>
+            <div class="employee-role">{{ employee.role }}</div>
+          </div>
+
+          <div class="employee-hours"
+               [ngClass]="getHoursClass(employee)"
+               [matTooltip]="getHoursTooltip(employee)">
+            <span class="hours-value">{{ getFormattedHours(employee.id) }}</span>
+            @if (employee.maxWeeklyHours) {
+              <span class="hours-max">/ {{ employee.maxWeeklyHours }}h</span>
+            }
+            @if (getHoursStatus(employee) === 'over') {
+              <mat-icon class="warning-icon">warning</mat-icon>
+            }
+          </div>
+
+          <div class="employee-actions">
+            <button mat-icon-button (click)="openEditDialog(employee)" [matTooltip]="mode() === 'family' ? 'Edit member' : 'Edit employee'">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteEmployee(employee)" [matTooltip]="mode() === 'family' ? 'Delete member' : 'Delete employee'">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

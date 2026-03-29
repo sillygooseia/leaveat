@@ -1,0 +1,73 @@
+<div class="join-page">
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading invite...</p>
+    </div>
+  } @else if (error() === 'not-found') {
+    <mat-card class="state-card error-card">
+      <mat-card-content>
+        <mat-icon class="state-icon">link_off</mat-icon>
+        <h2>Invite not found</h2>
+        <p>This invite link doesn't exist. Please ask your admin for a new one.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error() === 'used') {
+    <mat-card class="state-card error-card">
+      <mat-card-content>
+        <mat-icon class="state-icon">devices</mat-icon>
+        <h2>Already registered</h2>
+        <p>This invite link has already been used. Each link can only register one device. Please ask your admin for a new invite.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error() === 'expired') {
+    <mat-card class="state-card error-card">
+      <mat-card-content>
+        <mat-icon class="state-icon">schedule</mat-icon>
+        <h2>Invite expired</h2>
+        <p>This invite link has expired. Please ask your admin to send a new one.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error() === 'failed') {
+    <mat-card class="state-card error-card">
+      <mat-card-content>
+        <mat-icon class="state-icon">error_outline</mat-icon>
+        <h2>Something went wrong</h2>
+        <p>Unable to process this invite. Please try again or contact your admin.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (preview()) {
+    <mat-card class="state-card invite-card">
+      <mat-card-content>
+        <mat-icon class="state-icon invite-icon">person_add</mat-icon>
+        <h2>You're invited!</h2>
+        <p class="workspace-name">{{ preview()!.workspaceName }}</p>
+        <p class="member-info">
+          You've been added as <strong>{{ preview()!.memberName }}</strong>.
+        </p>
+        <p class="description">
+          Register this device to access your {{ workplaceLabel }} anytime — no link needed next time.
+        </p>
+
+        <button
+          mat-raised-button
+          color="primary"
+          class="register-btn"
+          [disabled]="registering()"
+          (click)="register()">
+          @if (registering()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Registering...</span>
+          } @else {
+            <mat-icon>check_circle</mat-icon>
+            <span>Register this device</span>
+          }
+        </button>
+
+        <p class="disclaimer">
+          This link is for <strong>{{ preview()!.memberName }}</strong> only and can be used once.
+        </p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

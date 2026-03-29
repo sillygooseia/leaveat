@@ -1,0 +1,147 @@
+<h2 mat-dialog-title>
+  <mat-icon>help_outline</mat-icon>
+  Help & Tips
+</h2>
+
+<mat-dialog-content>
+  <mat-tab-group>
+    <mat-tab label="Getting Started">
+      <div class="tab-content">
+        <h3>Quick Start Guide</h3>
+        
+        <div class="tip-section">
+          <div class="tip-icon">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="tip-content">
+            <h4>1. Add Employees</h4>
+            <p>Click the <mat-icon inline>people</mat-icon> icon in the toolbar to open the employee panel. Add your team members with their roles, colors, and optional weekly hour limits.</p>
+          </div>
+        </div>
+
+        <div class="tip-section">
+          <div class="tip-icon">
+            <mat-icon>settings</mat-icon>
+          </div>
+          <div class="tip-content">
+            <h4>2. Set Coverage Requirements (Optional)</h4>
+            <p>Click the <mat-icon inline>settings</mat-icon> icon to configure how many staff members you need each day. Choose from preset templates or customize your own.</p>
+          </div>
+        </div>
+
+        <div class="tip-section">
+          <div class="tip-icon">
+            <mat-icon>add_circle_outline</mat-icon>
+          </div>
+          <div class="tip-content">
+            <h4>3. Create Shifts</h4>
+            <p>Click the <mat-icon inline>add_circle_outline</mat-icon> button on any day, or double-click anywhere in the day column to quickly add a shift.</p>
+          </div>
+        </div>
+
+        <div class="tip-section">
+          <div class="tip-icon">
+            <mat-icon>content_copy</mat-icon>
+          </div>
+          <div class="tip-content">
+            <h4>4. Copy & Duplicate</h4>
+            <p>Use the <mat-icon inline>content_copy</mat-icon> menu to copy from last week, copy between days, or clear the entire week.</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Features">
+      <div class="tab-content">
+        <h3>Key Features</h3>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <strong>Automatic Hours Tracking</strong>
+              <p>Weekly hours are calculated automatically. Set max hours per employee to see color-coded warnings.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <mat-icon>warning</mat-icon>
+            <div>
+              <strong>Conflict Detection</strong>
+              <p>Get warned when scheduling the same person at overlapping times. Shifts with conflicts show a red dashed border.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <mat-icon>people</mat-icon>
+            <div>
+              <strong>Coverage Requirements</strong>
+              <p>Track whether you have enough staff scheduled for each day. Green = good, amber = approaching limit, red = understaffed.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <mat-icon>smart_button</mat-icon>
+            <div>
+              <strong>Smart Defaults</strong>
+              <p>When adding shifts, the app remembers each employee's typical hours and suggests them automatically.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <strong>Create Another</strong>
+              <p>Check "Create another" when adding a shift to keep the dialog open and quickly add multiple shifts.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <mat-icon>mouse</mat-icon>
+            <div>
+              <strong>Double-Click Shortcut</strong>
+              <p>Double-click any day column to quickly open the add shift dialog.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Keyboard Shortcuts">
+      <div class="tab-content">
+        <h3>Shortcuts & Tips</h3>
+
+        <div class="shortcut-list">
+          <div class="shortcut-item">
+            <kbd>Double-click day</kbd>
+            <span>Add shift</span>
+          </div>
+
+          <div class="shortcut-item">
+            <kbd>Click shift</kbd>
+            <span>Edit or delete shift</span>
+          </div>
+
+          <div class="shortcut-item">
+            <kbd>Click empty day</kbd>
+            <span>Add first shift</span>
+          </div>
+        </div>
+
+        <h4>Pro Tips</h4>
+        <ul class="tips-list">
+          <li>Use different colors for each employee to make the schedule easier to read at a glance</li>
+          <li>Set weekly hour limits to prevent accidental overwork</li>
+          <li>Copy from last week to save time on recurring schedules</li>
+          <li>Use notes on shifts for special instructions or reminders</li>
+          <li>Coverage requirements help ensure you're never understaffed</li>
+          <li>The "Create another" checkbox is great for bulk shift creation</li>
+        </ul>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">Got it!</button>
+</mat-dialog-actions>

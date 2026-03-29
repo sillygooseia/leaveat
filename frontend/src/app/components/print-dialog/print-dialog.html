@@ -1,0 +1,50 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>print</mat-icon>
+  Print / Export
+</h2>
+
+<mat-dialog-content>
+  <p class="subtitle">Print or save the current week's schedule — <strong>{{ data.weekDateRange }}</strong></p>
+
+  @if (isPersonal) {
+    <div class="export-options single">
+      <div class="export-card">
+        <mat-icon class="card-icon">calendar_today</mat-icon>
+        <h3>My Weekly Schedule</h3>
+        <p>A clean day-by-day view of your events for the week. Great for printing and keeping handy.</p>
+        <button mat-raised-button color="primary" (click)="printPersonalSchedule()">
+          <mat-icon>print</mat-icon>
+          Print My Schedule
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="export-options">
+      <div class="export-card">
+        <mat-icon class="card-icon">{{ data.mode === 'family' ? 'calendar_month' : 'table_chart' }}</mat-icon>
+        <h3>{{ data.mode === 'family' ? 'Family Schedule' : 'Work Chart' }}</h3>
+        <p>{{ data.mode === 'family' ? 'A grid showing every member\'s activities by day. Perfect for posting on the fridge or sharing with the family.' : 'A grid showing every employee\'s shifts by day. Perfect for posting on a notice board or sharing with staff.' }}</p>
+        <button mat-raised-button color="primary" (click)="printWorkChart()">
+          <mat-icon>print</mat-icon>
+          {{ data.mode === 'family' ? 'Print Family Schedule' : 'Print Work Chart' }}
+        </button>
+      </div>
+
+      <mat-divider [vertical]="true" class="card-divider"></mat-divider>
+
+      <div class="export-card">
+        <mat-icon class="card-icon">assignment</mat-icon>
+        <h3>{{ data.mode === 'family' ? 'Family Report' : 'Staffing Report' }}</h3>
+        <p>{{ data.mode === 'family' ? 'Detailed report with total time per member and a full day-by-day breakdown.' : 'Detailed report with total hours per employee and a full day-by-day breakdown. Ideal for payroll and management records.' }}</p>
+        <button mat-raised-button color="accent" (click)="printStaffingReport()">
+          <mat-icon>print</mat-icon>
+          {{ data.mode === 'family' ? 'Print Family Report' : 'Print Staffing Report' }}
+        </button>
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

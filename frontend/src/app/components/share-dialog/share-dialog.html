@@ -1,0 +1,246 @@
+<h2 mat-dialog-title>Share Schedule</h2>
+
+<mat-dialog-content>
+  <mat-tab-group animationDuration="0ms">
+
+    <!-- ── Tab 1: Share Link ───────────────────────────────────── -->
+    <mat-tab label="Share Link">
+      <div class="tab-content">
+        @if (!shareUrl()) {
+          <p class="info-text">Generate a share link for "{{ schedule.name }}"</p>
+
+          <mat-form-field class="full-width">
+            <mat-label>Link expires after</mat-label>
+            <mat-select [(ngModel)]="selectedTtl">
+              @for (option of ttlOptions; track option.value) {
+                @if (!option.premium || isPremium()) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                } @else {
+                  <mat-option [value]="option.value" disabled>
+                    <mat-icon style="font-size:16px;vertical-align:middle;margin-right:4px;">lock</mat-icon>
+                    {{ option.label }} — Premium
+                  </mat-option>
+                }
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (!isPremium()) {
+            <div class="premium-nudge">
+              <mat-icon>workspace_premium</mat-icon>
+              <span>
+                <a routerLink="/premium" (click)="close()">Upgrade to Premium</a>
+                for 30-day and permanent links.
+              </span>
+            </div>
+          }
+
+          <div class="info-box">
+            <mat-icon>info</mat-icon>
+            <p>Anyone with the link can view this schedule (read-only).
+              @if (selectedTtl() === PERMANENT_TTL) {
+                The link will never expire.
+              } @else {
+                The link will expire after the selected time period.
+              }
+            </p>
+          </div>
+        } @else {
+          <div class="success-state">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <p class="success-text">Share link created!</p>
+          </div>
+
+          <div class="link-container">
+            <mat-form-field class="full-width">
+              <mat-label>Share URL</mat-label>
+              <input matInput [value]="shareUrl()" readonly>
+            </mat-form-field>
+            <button mat-icon-button color="primary" (click)="copyLink()" matTooltip="Copy to clipboard">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+
+          @if (expiresAt()) {
+            <p class="expiry-text">Expires: {{ formatExpiration() }}</p>
+          } @else {
+            <p class="expiry-text permanent-badge"><mat-icon>all_inclusive</mat-icon> Permanent link</p>
+          }
+        }
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 2: Registered Access ───────────────────────────── -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon style="font-size:18px;margin-right:4px;vertical-align:middle;">devices</mat-icon>
+        Registered Access
+      </ng-template>
+
+      <div class="tab-content">
+        @if (!hasPremiumFeature('registered_access')) {
+          <!-- Premium gate -->
+          <div class="premium-gate">
+            <mat-icon class="gate-icon">workspace_premium</mat-icon>
+            <h3>Premium Feature</h3>
+            <p>Registered Access lets you send one-time invite links to team members. They register their device once and can check their schedule anytime — no new links needed.</p>
+            <a mat-raised-button color="primary" routerLink="/premium" (click)="close()">
+              Upgrade to Premium
+            </a>
+          </div>
+        } @else {
+
+          <!-- Section 1: Publish snapshot ──────────────────────── -->
+          <section class="ra-section">
+            <h3 class="ra-section-title">
+              <mat-icon>publish</mat-icon>
+              Publish Snapshot
+            </h3>
+            <p class="ra-hint">Publish the current schedule so registered members can see it. Run this whenever you update the schedule.</p>
+
+            <mat-form-field class="full-width">
+              <mat-label>Mode</mat-label>
+              <mat-select [(ngModel)]="selectedMode">
+                @for (opt of modeOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            @if (selectedMode() === 'workplace') {
+              <mat-form-field class="full-width">
+                <mat-label>Members can see</mat-label>
+                <mat-select [(ngModel)]="selectedVisibility">
+                  @for (opt of visibilityOptions; track opt.value) {
+                    <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="publishing()"
+              (click)="publishWorkspace()">
+              @if (publishing()) {
+                <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+              } @else {
+                <mat-icon>cloud_upload</mat-icon>
+              }
+              {{ publishedWorkspaceId() ? 'Re-publish Schedule' : 'Publish Schedule' }}
+            </button>
+
+            @if (publishedUpdatedAt()) {
+              <p class="ra-hint success-hint">
+                <mat-icon style="font-size:14px;vertical-align:middle;">check_circle</mat-icon>
+                Published {{ publishedUpdatedAt() | date:'short' }}
+              </p>
+            }
+          </section>
+
+          @if (publishedWorkspaceId()) {
+            <!-- Section 2: Create invite ──────────────────────── -->
+            <section class="ra-section">
+              <h3 class="ra-section-title">
+                <mat-icon>person_add</mat-icon>
+                Invite {{ memberLabel }}
+              </h3>
+              <p class="ra-hint">Send a one-time link. The recipient registers their device and can access the schedule directly afterwards.</p>
+
+              <div class="invite-row">
+                <mat-form-field class="full-width">
+                  <mat-label>{{ memberLabel }} name</mat-label>
+                  <input matInput [(ngModel)]="newMemberName" [placeholder]="'e.g. ' + memberLabel + ' name'" (keydown.enter)="createInvite()">
+                </mat-form-field>
+                <button
+                  mat-raised-button
+                  color="accent"
+                  [disabled]="!newMemberName().trim() || inviting()"
+                  (click)="createInvite()">
+                  @if (inviting()) {
+                    <mat-spinner diameter="18" style="display:inline-block;"></mat-spinner>
+                  } @else {
+                    Create
+                  }
+                </button>
+              </div>
+
+              @if (latestInviteUrl()) {
+                <div class="invite-result">
+                  <mat-icon color="primary">link</mat-icon>
+                  <span class="invite-url">{{ latestInviteUrl() }}</span>
+                  <button mat-icon-button matTooltip="Copy invite link" (click)="copyInviteLink()">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+                <p class="ra-hint">Share this link. It expires in 7 days and can only be used once.</p>
+              }
+            </section>
+
+            <!-- Section 3: Device registry ───────────────────── -->
+            <section class="ra-section">
+              <div class="ra-section-title-row">
+                <h3 class="ra-section-title">
+                  <mat-icon>manage_accounts</mat-icon>
+                  Registered Devices
+                </h3>
+                <button mat-icon-button matTooltip="Refresh" (click)="loadRegistrations()" [disabled]="loadingRegistrations()">
+                  <mat-icon>refresh</mat-icon>
+                </button>
+              </div>
+
+              @if (loadingRegistrations()) {
+                <mat-spinner diameter="24"></mat-spinner>
+              } @else if (registrations().length === 0) {
+                <p class="ra-hint">No invites sent yet.</p>
+              } @else {
+                <div class="registrations-list">
+                  @for (reg of registrations(); track reg.inviteId) {
+                    <div class="reg-row" [class.revoked]="reg.status === 'revoked'" [class.expired]="reg.status === 'expired'">
+                      <div class="reg-info">
+                        <span class="reg-name">{{ reg.memberName }}</span>
+                        <span class="reg-status" [class]="'status-' + reg.status">{{ reg.status }}</span>
+                        @if (reg.lastAccessedAt) {
+                          <span class="reg-last">last seen {{ reg.lastAccessedAt | date:'shortDate' }}</span>
+                        }
+                      </div>
+                      @if (reg.status === 'registered' && reg.tokenId) {
+                        <button
+                          mat-icon-button
+                          color="warn"
+                          matTooltip="Revoke device"
+                          (click)="revokeDevice(reg.tokenId)">
+                          <mat-icon>block</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          }
+        }
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (!shareUrl()) {
+    <button mat-button (click)="close()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="generateLink()" [disabled]="loading()">
+      @if (loading()) {
+        <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+      }
+      Generate Link
+    </button>
+  } @else {
+    <button mat-button (click)="copyLink()">
+      <mat-icon>content_copy</mat-icon>
+      Copy Link
+    </button>
+    <button mat-raised-button color="primary" (click)="close()">Done</button>
+  }
+</mat-dialog-actions>

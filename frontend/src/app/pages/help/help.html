@@ -1,0 +1,107 @@
+<header class="header">
+  <div class="container">
+    <a routerLink="/home" class="logo">
+      <mat-icon class="logo-icon">location_on</mat-icon>
+      <span class="logo-text">LeaveAt</span>
+    </a>
+    <nav class="nav">
+      <a routerLink="/how-it-works" class="nav-link">How It Works</a>
+      <a routerLink="/premium" class="nav-link nav-link-premium">✦ Premium</a>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+        Start Scheduling
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <mat-icon class="hero-icon">help_outline</mat-icon>
+      <h1 class="page-title">Help Center</h1>
+      <p class="page-subtitle">Answers to common questions. Still stuck? Email us.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <mat-accordion class="faq-accordion">
+        @for (item of faqs; track item.q) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ item.q }}</mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>{{ item.a }}</p>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="section section-contact">
+    <div class="container contact-card">
+      <mat-icon class="contact-icon">mail_outline</mat-icon>
+      <h2>Still need help?</h2>
+      <p>
+        Send us an email and we'll get back to you as soon as possible.
+      </p>
+      <a href="mailto:support@leaveat.com" class="support-email">
+        support&#64;leaveat.com
+      </a>
+      <p class="contact-note">We aim to reply within one business day.</p>
+    </div>
+  </section>
+
+  <!-- Quick links -->
+  <section class="section section-links">
+    <div class="container">
+      <h2 class="section-title">Helpful Links</h2>
+      <div class="links-grid">
+        <a routerLink="/how-it-works" class="link-card">
+          <mat-icon>play_circle_outline</mat-icon>
+          <div>
+            <h3>How It Works</h3>
+            <p>A step-by-step walkthrough of creating and sharing a schedule.</p>
+          </div>
+        </a>
+        <a routerLink="/premium" class="link-card">
+          <mat-icon>workspace_premium</mat-icon>
+          <div>
+            <h3>Premium Features</h3>
+            <p>Cloud backup, permanent links, and registered device access.</p>
+          </div>
+        </a>
+        <a routerLink="/about" class="link-card">
+          <mat-icon>info_outline</mat-icon>
+          <div>
+            <h3>About LeaveAt</h3>
+            <p>What we built, why we built it, and who it's designed for.</p>
+          </div>
+        </a>
+        <a routerLink="/" class="link-card">
+          <mat-icon>calendar_today</mat-icon>
+          <div>
+            <h3>Open the Scheduler</h3>
+            <p>Jump straight to building your schedule — no setup required.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <nav class="footer-nav">
+      <a routerLink="/about" class="footer-link">About</a>
+      <a routerLink="/help" class="footer-link">Help</a>
+      <a routerLink="/how-it-works" class="footer-link">How It Works</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </nav>
+    <p class="footer-copyright">© 2024 LeaveAt. Simple schedules, shared easily.</p>
+  </div>
+</footer>

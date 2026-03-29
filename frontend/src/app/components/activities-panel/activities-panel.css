@@ -1,0 +1,181 @@
+.activities-panel {
+  padding: 1rem;
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+/* ── State hints ──────────────────────────────────── */
+
+.no-workspace-hint {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  color: rgba(0, 0, 0, 0.5);
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+}
+
+.no-workspace-hint mat-icon {
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.empty-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 0.85rem;
+}
+
+.empty-hint mat-icon {
+  font-size: 2rem;
+  height: 2rem;
+  width: 2rem;
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.85rem;
+}
+
+/* ── Event list ──────────────────────────────────── */
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.event-card {
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &.past {
+    opacity: 0.55;
+  }
+}
+
+.event-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.event-type-icon {
+  color: #3f51b5;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.event-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.event-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.event-sub {
+  font-size: 0.78rem;
+  color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.tiny-icon {
+  font-size: 0.8rem;
+  height: 0.8rem;
+  width: 0.8rem;
+}
+
+/* ── Claim badges ─────────────────────────────────── */
+
+.event-claims {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 100px;
+  align-items: flex-end;
+}
+
+.claim-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  background: #fce4ec;
+  color: #c62828;
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+
+  &.claimed {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.pickup-badge {
+    background: #fce4ec;
+    color: #c62828;
+
+    &.claimed {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+  }
+}
+
+/* ── Past events ─────────────────────────────────── */
+
+.past-section {
+  margin-top: 1rem;
+
+  summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.45);
+    padding: 0.25rem 0;
+    user-select: none;
+  }
+}
+
+.past-list {
+  margin-top: 0.5rem;
+}

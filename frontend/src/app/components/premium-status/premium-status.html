@@ -1,0 +1,116 @@
+@if (isPremium()) {
+  <div class="premium-card">
+    <div class="premium-header">
+      <mat-icon class="gold-icon">workspace_premium</mat-icon>
+      <div>
+        <div class="tier-label">Premium</div>
+        @if (expiryDate()) {
+          <div class="expiry">Expires {{ expiryDate() | date:'mediumDate' }}</div>
+        }
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Cloud Backup -->
+    <div class="section">
+      <h4>Cloud Backup</h4>
+      @if (lastBackupAt()) {
+        <p class="muted">Last backup: {{ lastBackupAt()! | date:'short' }}</p>
+      } @else {
+        <p class="muted">No backup yet</p>
+      }
+      <div class="action-row">
+        <button mat-stroked-button (click)="showPinPrompt('backup')" [disabled]="backupLoading()">
+          @if (backupLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>cloud_upload</mat-icon> }
+          Backup Now
+        </button>
+        <button mat-stroked-button (click)="showPinPrompt('restore')" [disabled]="restoreLoading()">
+          @if (restoreLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>cloud_download</mat-icon> }
+          Restore
+        </button>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Multi-device restore -->
+    <div class="section">
+      <h4>Move to Another Device</h4>
+      <div class="action-row">
+        <button mat-stroked-button (click)="generateRestoreCode()" [disabled]="restoreCodeLoading()">
+          @if (restoreCodeLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>pin</mat-icon> }
+          Get Restore Code
+        </button>
+        <button mat-stroked-button (click)="exportQr()" [disabled]="qrLoading()">
+          @if (qrLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>qr_code</mat-icon> }
+          Export QR
+        </button>
+        <button mat-stroked-button (click)="registerPasskey()" [disabled]="passkeyLoading()">
+          @if (passkeyLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>fingerprint</mat-icon> }
+          Register Passkey
+        </button>
+      </div>
+
+      @if (restoreCode()) {
+        <div class="code-display">
+          <span class="code">{{ restoreCode() }}</span>
+          <span class="code-note">Valid for 24 hours — enter on your other device</span>
+        </div>
+      }
+
+      @if (qrDataUrl()) {
+        <div class="qr-display">
+          <img [src]="qrDataUrl()!" alt="License QR code" width="200" height="200">
+          <p class="muted">Screenshot or print this QR code. Scan it on your other device.</p>
+        </div>
+      }
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="section deactivate-section">
+      <button mat-button color="warn" (click)="deactivate()">
+        <mat-icon>remove_circle_outline</mat-icon> Remove License from This Device
+      </button>
+    </div>
+  </div>
+} @else {
+  <div class="free-card">
+    <mat-icon class="free-icon">workspace_premium</mat-icon>
+    <div class="free-text">
+      <strong>Free Plan</strong>
+      <span>Upgrade to Premium for unlimited schedules, cloud backup, and more.</span>
+    </div>
+    <button mat-raised-button color="primary" (click)="openActivation()">
+      Activate License
+    </button>
+  </div>
+}
+
+<!-- PIN prompt overlay -->
+@if (pinPrompt()) {
+  <div class="pin-overlay">
+    <div class="pin-dialog">
+      <h4>
+        @if (pinPrompt() === 'backup') { Enter PIN to Encrypt Backup }
+        @else { Enter PIN to Decrypt Backup }
+      </h4>
+      <p class="muted">
+        @if (pinPrompt() === 'backup') {
+          Choose a PIN. You'll need it to restore this backup on another device.
+        } @else {
+          Enter the PIN you used when creating the backup.
+        }
+      </p>
+      <input type="password" [(ngModel)]="pinValue" placeholder="PIN" class="pin-input"
+             (keydown.enter)="confirmPinAction()">
+      <div class="pin-actions">
+        <button mat-button (click)="cancelPinPrompt()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="confirmPinAction()" [disabled]="!pinValue()">
+          @if (pinPrompt() === 'backup') { Backup } @else { Restore }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,205 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+}
+
+mat-dialog-content {
+  min-width: 540px;
+  max-width: 640px;
+  padding-top: 1rem !important;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.row-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Duration quick-picks */
+.end-time-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.duration-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.duration-label {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.54);
+  white-space: nowrap;
+}
+
+.duration-row button {
+  height: 32px;
+  font-size: 0.8rem;
+  padding: 0 0.75rem;
+  min-width: unset;
+}
+
+.duration-row button.duration-active {
+  background-color: #e3f2fd;
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+/* Volunteer Slots */
+.slots-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.slots-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.slots-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.slots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.slot-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.slot-label-text {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.slot-remove-btn {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+}
+
+.slot-remove-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.no-slots-hint {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.45);
+  font-style: italic;
+  margin: 0;
+}
+
+.add-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .slot-input {
+    flex: 1;
+  }
+}
+
+/* Participants */
+.participants-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.participants-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.participant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.add-participant-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .participant-input {
+    flex: 1;
+  }
+}
+
+.quick-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-label {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.quick-chip {
+  font-size: 0.75rem;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 0.75rem;
+}
+
+@media (max-width: 600px) {
+  mat-dialog-content {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .row-pair {
+    grid-template-columns: 1fr;
+  }
+}

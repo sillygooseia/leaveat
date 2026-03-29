@@ -1,0 +1,24 @@
+{
+  "name": "leaveat-backend",
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "@bafgo/core": "file:../../bafgo/packages/core",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "ioredis": "^5.3.0",
+    "jose": "^5.9.6",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^6.9.0",
+    "pg": "^8.13.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

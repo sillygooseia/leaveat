@@ -1,0 +1,284 @@
+<mat-toolbar color="primary" class="schedule-toolbar">
+  <button mat-icon-button routerLink="/home" matTooltip="Home" class="desktop-only">
+    <mat-icon>home</mat-icon>
+  </button>
+  
+  @if (!isPersonalMode()) {
+    <button mat-icon-button (click)="toggleEmployeePanel()" [matTooltip]="scheduleMode() === 'family' ? 'Manage members' : 'Manage employees'">
+      <mat-icon>people</mat-icon>
+    </button>
+  }
+  
+  <div class="week-navigation">
+    <button mat-icon-button (click)="previousWeek()" matTooltip="Previous week">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    
+    <div class="week-info" [matMenuTriggerFor]="workspaceMenu" class="week-info workspace-trigger" matTooltip="Switch workspace">
+      <span class="schedule-title">
+        {{ currentSchedule()?.name || 'Loading...' }}
+        <mat-icon class="workspace-chevron">arrow_drop_down</mat-icon>
+      </span>
+      <span class="week-range">{{ weekDateRange() }}</span>
+    </div>
+
+    <mat-menu #workspaceMenu="matMenu" class="workspace-menu">
+      <!-- Usage row -->
+      <div class="workspace-usage" mat-menu-item disabled>
+        @if (scheduleLimit() !== null) {
+          <mat-icon>folder</mat-icon>
+          <span>{{ allSchedules().length }} / {{ scheduleLimit() }} workspace{{ scheduleLimit() === 1 ? '' : 's' }} used</span>
+        } @else {
+          <mat-icon style="color:#f9a825">workspace_premium</mat-icon>
+          <span>Unlimited workspaces</span>
+        }
+      </div>
+      <mat-divider></mat-divider>
+
+      <!-- Workspace list -->
+      @for (s of allSchedules(); track s.id) {
+        <button mat-menu-item (click)="switchWorkspace(s)" [class.workspace-active]="s.id === currentSchedule()?.id">
+          <mat-icon>{{ s.id === currentSchedule()?.id ? 'check' : 'folder_open' }}</mat-icon>
+          <span>{{ s.name }}</span>
+        </button>
+      }
+      <mat-divider></mat-divider>
+
+      <!-- Actions -->
+      <button mat-menu-item (click)="createWorkspace()" [disabled]="atScheduleLimit()">
+        <mat-icon>add</mat-icon>
+        @if (atScheduleLimit()) {
+          <span class="workspace-upgrade">New workspace <span class="premium-badge-inline">Premium</span></span>
+        } @else {
+          <span>New workspace</span>
+        }
+      </button>
+      <button mat-menu-item (click)="renameWorkspace()">
+        <mat-icon>edit</mat-icon>
+        <span>Rename</span>
+      </button>
+      <button mat-menu-item [matMenuTriggerFor]="modeMenu">
+        <mat-icon>tune</mat-icon>
+        <span>Switch mode</span>
+      </button>
+      <mat-menu #modeMenu="matMenu">
+        <button mat-menu-item (click)="switchToMode('workplace')">
+          <mat-icon>{{ scheduleMode() === 'workplace' ? 'check' : 'work' }}</mat-icon>
+          <span>Workplace</span>
+        </button>
+        <button mat-menu-item (click)="switchToMode('family')">
+          <mat-icon>{{ scheduleMode() === 'family' ? 'check' : 'home' }}</mat-icon>
+          <span>Family</span>
+        </button>
+        <button mat-menu-item (click)="switchToMode('personal')">
+          <mat-icon>{{ scheduleMode() === 'personal' ? 'check' : 'person' }}</mat-icon>
+          <span>Personal</span>
+        </button>
+      </mat-menu>
+      <button mat-menu-item (click)="deleteWorkspace()" [disabled]="allSchedules().length <= 1">
+        <mat-icon>delete_outline</mat-icon>
+        <span>Delete workspace</span>
+      </button>
+    </mat-menu>
+    
+    <button mat-icon-button (click)="nextWeek()" matTooltip="Next week">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    
+    <button mat-stroked-button (click)="thisWeek()" class="today-button desktop-only">
+      Today
+    </button>
+  </div>
+  
+  <span class="spacer desktop-only"></span>
+
+  <button mat-stroked-button [matMenuTriggerFor]="modeMenu" class="mode-chip desktop-only" matTooltip="Switch schedule mode">
+    Mode: {{ modeLabel() }}&nbsp;<mat-icon class="mode-chip-chevron">arrow_drop_down</mat-icon>
+  </button>
+
+  <button mat-icon-button [matMenuTriggerFor]="copyMenu" matTooltip="Quick copy actions" class="desktop-only">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+  
+  <button mat-icon-button (click)="openPrintDialog()" matTooltip="Print / Export" class="desktop-only">
+    <mat-icon>print</mat-icon>
+  </button>
+  
+  <mat-menu #copyMenu="matMenu">
+    <button mat-menu-item (click)="copyFromLastWeek()">
+      <mat-icon>library_add</mat-icon>
+      <span>Copy from Last Week</span>
+    </button>
+    <button mat-menu-item (click)="openCopyDayDialog()">
+      <mat-icon>swap_horiz</mat-icon>
+      <span>Copy Day</span>
+    </button>
+    <button mat-menu-item (click)="clearWeek()">
+      <mat-icon>clear_all</mat-icon>
+      <span>Clear Week</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="clearAllData()" class="menu-item-danger">
+      <mat-icon>delete_forever</mat-icon>
+      <span>Clear All Data</span>
+    </button>
+  </mat-menu>
+  
+  @if (!isPersonalMode()) {
+    <button mat-icon-button (click)="openCoverageDialog()" matTooltip="Coverage requirements" class="desktop-only">
+      <mat-icon>settings</mat-icon>
+    </button>
+  }
+  
+  <button mat-icon-button (click)="openHelpDialog()" matTooltip="Help &amp; tips" class="desktop-only">
+    <mat-icon>help_outline</mat-icon>
+  </button>
+  
+  <button mat-button (click)="openShareDialog()" class="desktop-only">
+    <mat-icon>share</mat-icon>
+    Share
+  </button>
+
+  <button mat-button routerLink="/premium" class="premium-toolbar-button desktop-only" matTooltip="Upgrade to Premium">
+    <mat-icon>star</mat-icon>
+    Premium
+  </button>
+
+  <button mat-icon-button [matMenuTriggerFor]="moreMenu" class="mobile-only" aria-label="More actions">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <mat-menu #moreMenu="matMenu">
+    <button mat-menu-item (click)="thisWeek()">
+      <mat-icon>today</mat-icon>
+      <span>Go to Today</span>
+    </button>
+    <a mat-menu-item routerLink="/">
+      <mat-icon>home</mat-icon>
+      <span>Home</span>
+    </a>
+    <mat-divider></mat-divider>
+    <button mat-menu-item [matMenuTriggerFor]="copyMenu">
+      <mat-icon>content_copy</mat-icon>
+      <span>Copy actions</span>
+    </button>
+    @if (!isPersonalMode()) {
+      <button mat-menu-item (click)="openCoverageDialog()">
+        <mat-icon>settings</mat-icon>
+        <span>Coverage</span>
+      </button>
+    }
+    <button mat-menu-item (click)="openHelpDialog()">
+      <mat-icon>help_outline</mat-icon>
+      <span>Help &amp; tips</span>
+    </button>
+    <button mat-menu-item (click)="openShareDialog()">
+      <mat-icon>share</mat-icon>
+      <span>Share</span>
+    </button>
+    <button mat-menu-item (click)="openPrintDialog()">
+      <mat-icon>print</mat-icon>
+      <span>Print / Export</span>
+    </button>
+    <mat-divider></mat-divider>
+    <a mat-menu-item routerLink="/premium">
+      <mat-icon>star</mat-icon>
+      <span>Premium</span>
+    </a>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="schedule-container">
+  @if (!isPersonalMode()) {
+    <mat-sidenav 
+      [mode]="isMobile() ? 'over' : 'side'" 
+      [opened]="employeePanelOpen()" 
+      position="start"
+      class="employee-panel">
+      <div class="panel-header">
+        <h2>{{ scheduleMode() === 'family' ? 'Members' : 'Employees' }}</h2>
+        <button mat-icon-button (click)="toggleEmployeePanel()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="panel-content">
+        <app-employee-management [shifts]="shifts()" [mode]="scheduleMode()" [weekStartDate]="weekStartDate()" (employeesChanged)="refreshEmployees()"></app-employee-management>
+      </div>
+    </mat-sidenav>
+  }
+  
+  <mat-sidenav-content>
+    <div class="schedule-content">
+      @if (isWelcomeBannerVisible()) {
+        <div class="welcome-banner">
+          <span class="welcome-banner-text">
+            <strong>Welcome to LeaveAt</strong> — the zero-friction schedule builder.
+            <a routerLink="/premium" class="welcome-banner-link">First 100 Premium unlocks free → Claim</a>
+          </span>
+          <button mat-icon-button class="welcome-banner-dismiss" (click)="dismissWelcomeBanner()" matTooltip="Dismiss">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+
+      @if (modeSuggestion()) {
+        <div class="mode-suggestion-bar">
+          <mat-icon class="mode-suggestion-icon">lightbulb_outline</mat-icon>
+          <span>Looks like you’re planning a personal schedule. Switch to Personal Mode?</span>
+          <button mat-stroked-button (click)="acceptModeSuggestion()" class="mode-suggestion-switch">Switch</button>
+          <button mat-button (click)="dismissModeSuggestion()" class="mode-suggestion-dismiss">Ignore</button>
+        </div>
+      }
+
+      @if (isPersonalMode()) {
+        <app-schedule-grid 
+          [shifts]="currentWeekShifts()" 
+          [employees]="employees()"
+          [activities]="panelActivities()"
+          [weekStartDate]="weekStartDate()"
+          [coverageRequirements]="currentSchedule()?.coverageRequirements || null"
+          [personalMode]="true"
+          (shiftsChange)="onShiftsChange($event)">
+        </app-schedule-grid>
+      } @else if (employees().length === 0) {
+        <div class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <h2>{{ scheduleMode() === 'family' ? 'No members yet' : 'No employees yet' }}</h2>
+          <p>{{ scheduleMode() === 'family' ? 'Add family members to start scheduling' : 'Add team members to start creating schedules' }}</p>
+          <button mat-raised-button color="primary" (click)="toggleEmployeePanel()">
+            <mat-icon>add</mat-icon>
+            {{ scheduleMode() === 'family' ? 'Add Members' : 'Add Employees' }}
+          </button>
+          <a class="getting-started-link" (click)="openHelpDialog()">View Getting Started Guide</a>
+        </div>
+      } @else {
+        <app-schedule-grid 
+          [shifts]="currentWeekShifts()" 
+          [employees]="employees()"
+          [activities]="panelActivities()"
+          [weekStartDate]="weekStartDate()"
+          [coverageRequirements]="currentSchedule()?.coverageRequirements || null"
+          (shiftsChange)="onShiftsChange($event)"
+          (requestAddActivity)="onRequestAddActivity($event)">
+        </app-schedule-grid>
+
+        @if (scheduleMode() === 'family') {
+          <app-activities-panel
+            [scheduleId]="currentSchedule()!.id"
+            [familyMemberNames]="employees().map(e => e.name)"
+            (eventsChanged)="panelActivities.set($event)">
+          </app-activities-panel>
+        }
+      }
+
+      @if (!isPremium()) {
+        <div class="premium-teaser">
+          <span class="premium-teaser-star">✶</span>
+          <span>Premium — Unlimited schedules, templates &amp; history.
+            <a routerLink="/premium" class="premium-teaser-link">First 100 free →</a>
+          </span>
+        </div>
+      }
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

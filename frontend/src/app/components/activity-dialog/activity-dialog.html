@@ -1,0 +1,167 @@
+<h2 mat-dialog-title>
+  <mat-icon>event</mat-icon>
+  {{ isEditMode ? 'Edit Activity' : 'Add Activity' }}
+</h2>
+
+<mat-dialog-content>
+  <div class="form-grid">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Activity name</mat-label>
+      <input matInput [value]="title()" (input)="title.set($any($event.target).value)"
+             placeholder="e.g. Johnny's Basketball Practice" required />
+    </mat-form-field>
+
+    <div class="row-pair">
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select [value]="activityType()" (selectionChange)="activityType.set($event.value)">
+          @for (type of activityTypes; track type.value) {
+            <mat-option [value]="type.value">
+              <mat-icon>{{ type.icon }}</mat-icon>
+              {{ type.label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Location (optional)</mat-label>
+        <mat-icon matPrefix>place</mat-icon>
+        <input matInput [value]="location()" (input)="location.set($any($event.target).value)"
+               placeholder="e.g. Riverside Park" />
+      </mat-form-field>
+    </div>
+
+    <div class="row-pair">
+      <mat-form-field appearance="outline">
+        <mat-label>Start</mat-label>
+        <input matInput type="datetime-local" [value]="startAt()"
+               (input)="onStartChange($any($event.target).value)" required />
+      </mat-form-field>
+
+      <div class="end-time-group">
+        <div class="duration-row">
+          <span class="duration-label">Duration</span>
+          @for (d of QUICK_DURATIONS; track d) {
+            <button mat-stroked-button type="button"
+                    [class.duration-active]="activeDuration() === d"
+                    (click)="setDuration(d)">
+              {{ durationLabel(d) }}
+            </button>
+          }
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>End</mat-label>
+          <input matInput type="datetime-local" [value]="endAt()"
+                 (input)="onEndChange($any($event.target).value)" required />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Participants -->
+    <div class="participants-section">
+      <label class="participants-label">Who's going?</label>
+
+      @if (participants().length > 0) {
+        <mat-chip-set class="participant-chips">
+          @for (p of participants(); track p) {
+            <mat-chip (removed)="removeParticipant(p)">
+              {{ p }}
+              <button matChipRemove aria-label="Remove {{ p }}">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          }
+        </mat-chip-set>
+      }
+
+      <div class="add-participant-row">
+        <mat-form-field appearance="outline" class="participant-input">
+          <mat-label>Add a family member</mat-label>
+          <input matInput
+                 [(ngModel)]="participantInput"
+                 (keydown)="onParticipantKeydown($event)"
+                 placeholder="Type name and press Enter" />
+        </mat-form-field>
+        <button mat-icon-button color="primary" type="button"
+                [disabled]="!participantInput.trim()"
+                (click)="addParticipant(participantInput)"
+                aria-label="Add participant">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
+
+      @if (data.familyMembers.length > 0) {
+        <div class="quick-add">
+          <span class="quick-label">Quick add:</span>
+          @for (m of data.familyMembers; track m) {
+            @if (!participants().includes(m)) {
+              <button mat-stroked-button class="quick-chip" type="button"
+                      (click)="addParticipant(m)">{{ m }}</button>
+            }
+          }
+        </div>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Notes (optional)</mat-label>
+      <textarea matInput [value]="notes()" (input)="notes.set($any($event.target).value)"
+                rows="2" placeholder="e.g. Bring cleats, pick up at back gate"></textarea>
+    </mat-form-field>
+
+    <!-- Volunteer Slots -->
+    <div class="slots-section">
+      <label class="slots-label">
+        <mat-icon class="slots-icon">volunteer_activism</mat-icon>
+        Who can help? (volunteer roles)
+      </label>
+
+      <div class="slots-list">
+        @for (slot of slots(); track slot.id) {
+          <div class="slot-row">
+            <mat-icon class="slot-icon">person_raised_hand</mat-icon>
+            <span class="slot-label-text">{{ slot.label }}</span>
+            <button mat-icon-button type="button" class="slot-remove-btn"
+                    (click)="removeSlot(slot.id)"
+                    [attr.aria-label]="'Remove ' + slot.label">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+        @if (slots().length === 0) {
+          <p class="no-slots-hint">No volunteer roles — family members won't see help options.</p>
+        }
+      </div>
+
+      <div class="add-slot-row">
+        <mat-form-field appearance="outline" class="slot-input">
+          <mat-label>Add a role</mat-label>
+          <input matInput [(ngModel)]="newSlotLabel"
+                 (keydown)="onSlotKeydown($event)"
+                 placeholder="e.g. Bring snacks, Ref score" />
+        </mat-form-field>
+        <button mat-icon-button color="primary" type="button"
+                [disabled]="!newSlotLabel.trim()"
+                (click)="addSlot()"
+                aria-label="Add volunteer role">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (isEditMode) {
+    <button mat-button color="warn" (click)="delete()" style="margin-right: auto">
+      <mat-icon>delete</mat-icon> Delete
+    </button>
+  }
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="!isValid()">
+    {{ isEditMode ? 'Save Changes' : 'Add Activity' }}
+  </button>
+</mat-dialog-actions>

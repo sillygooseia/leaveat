@@ -1,0 +1,198 @@
+<header class="header">
+  <div class="container">
+    <a routerLink="/home" class="logo">
+      <mat-icon class="logo-icon">location_on</mat-icon>
+      <span class="logo-text">LeaveAt</span>
+    </a>
+    <nav class="nav">
+      <a routerLink="/how-it-works" class="nav-link">How It Works</a>
+      <a routerLink="/premium" class="nav-link nav-link-premium">✦ Premium</a>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+        Start Scheduling
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <h1 class="page-title">Privacy Policy</h1>
+      <p class="page-meta">Last updated: {{ lastUpdated }}</p>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+
+      <p class="lead">
+        LeaveAt is built around a simple principle: <strong>we collect as little data as possible.</strong>
+        Because the app is local-first and accountless, most of your data never leaves your device.
+        This policy explains exactly what we do and don't collect.
+      </p>
+
+      <div class="callout">
+        <mat-icon>info</mat-icon>
+        <p>
+          <strong>The short version:</strong> Your schedule lives in your browser. We only see a temporary,
+          anonymised snapshot when you share a link — and we delete it when it expires.
+          We never create accounts, track you across the web, or sell your data.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>1. Data We Do Not Collect</h2>
+        <p>We do <strong>not</strong> collect or store:</p>
+        <ul>
+          <li>Your name, email address, or any personal identifier</li>
+          <li>Your schedule data outside of the share-link flow described below</li>
+          <li>Cookies for tracking or advertising</li>
+          <li>Browsing behaviour, analytics events, or usage profiles</li>
+          <li>Device fingerprints or cross-site identifiers</li>
+        </ul>
+      </div>
+
+      <div class="section-block">
+        <h2>2. Data Stored in Your Browser</h2>
+        <p>
+          All schedule data — employees, shifts, settings — is stored in your browser's
+          <code>localStorage</code>. This data never leaves your device unless you explicitly
+          generate a share link or a Premium cloud backup.
+          You can clear it at any time by clearing your browser's site data.
+        </p>
+        <p>
+          A small anonymous token is stored locally to associate your device with a Premium license
+          if you purchase one. This token is not linked to your identity.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>3. Share Links</h2>
+        <p>
+          When you click <strong>Share</strong>, a read-only snapshot of your current schedule is
+          encrypted and uploaded to our servers. This snapshot:
+        </p>
+        <ul>
+          <li>Contains only the schedule data you chose to share (employee names, shifts, and dates)</li>
+          <li>Is not linked to any account or personal identifier</li>
+          <li>Is automatically deleted when the link expires (7 days for free; 30 days or custom for Premium)</li>
+          <li>Is accessible only to anyone who has the link — treat the link as a secret</li>
+        </ul>
+        <p>
+          We do not analyse, index, or retain the contents of share snapshots beyond their expiry.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>4. Premium Cloud Backup</h2>
+        <p>
+          Premium users can optionally back up their schedules to our servers. Backups are:
+        </p>
+        <ul>
+          <li>Encrypted before leaving your device using a key tied to your license</li>
+          <li>Stored associated with an anonymous license identifier — not your name or email</li>
+          <li>Deleted when you request deletion or when your license lapses beyond the grace period</li>
+        </ul>
+      </div>
+
+      <div class="section-block">
+        <h2>5. Payments</h2>
+        <p>
+          Premium purchases are processed by <strong>Stripe</strong>. LeaveAt never sees or stores
+          your payment card details. Stripe's privacy policy governs how your payment information
+          is handled. Please review it at
+          <a href="https://stripe.com/privacy" target="_blank" rel="noopener">stripe.com/privacy</a>.
+        </p>
+        <p>
+          We receive only a confirmation of payment and a transaction ID. We do not receive your
+          name or billing address from Stripe unless you contact us about a refund.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>6. Server Logs</h2>
+        <p>
+          Our servers generate standard access logs (IP address, timestamp, request path, HTTP status code)
+          for security and diagnostic purposes. These logs are retained for up to 30 days and are not
+          used for advertising or profiling.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>7. Cookies</h2>
+        <p>
+          LeaveAt does not use cookies for tracking or advertising. We do not use third-party analytics
+          or ad networks. The only browser storage we use is <code>localStorage</code> on your
+          own device for your schedule and license token.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>8. Children's Privacy</h2>
+        <p>
+          LeaveAt is not directed at children under 13. We do not knowingly collect information
+          from children. If you believe a child has submitted data through the Service, please
+          contact us and we will remove it promptly.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>9. Your Rights</h2>
+        <p>
+          Because we don't hold personal accounts, most of your data is already fully under your control
+          (it's in your browser). For any data we do hold — share snapshots or backups — you can:
+        </p>
+        <ul>
+          <li>Delete share links early from the share dialog in the scheduler</li>
+          <li>Delete cloud backups from the Premium settings panel</li>
+          <li>Contact us at <a href="mailto:support@leaveat.com">support&#64;leaveat.com</a> to request
+          deletion of any server-side data associated with your license token</li>
+        </ul>
+      </div>
+
+      <div class="section-block">
+        <h2>10. Changes to This Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. Changes will be reflected on this page
+          with a revised date. Continued use of the Service after updates constitutes acceptance of
+          the updated policy. We will never materially change how we use your data without clearly
+          communicating it here.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>11. Contact</h2>
+        <p>
+          Questions or requests regarding your privacy?
+          Email us at <a href="mailto:support@leaveat.com">support&#64;leaveat.com</a>.
+          We'll respond within one business day.
+        </p>
+      </div>
+
+      <div class="policy-nav">
+        <a routerLink="/terms" class="policy-link">
+          <mat-icon>gavel</mat-icon>
+          Read our Terms of Service
+        </a>
+        <a routerLink="/home" class="policy-link">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Home
+        </a>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <nav class="footer-nav">
+      <a routerLink="/about" class="footer-link">About</a>
+      <a routerLink="/help" class="footer-link">Help</a>
+      <a routerLink="/how-it-works" class="footer-link">How It Works</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </nav>
+    <p class="footer-copyright">© 2024 LeaveAt. Simple schedules, shared easily.</p>
+  </div>
+</footer>

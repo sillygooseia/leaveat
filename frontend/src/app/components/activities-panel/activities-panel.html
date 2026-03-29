@@ -1,0 +1,103 @@
+<div class="activities-panel">
+  <div class="panel-title-row">
+    <h3 class="panel-title">
+      <mat-icon>directions_car</mat-icon>
+      Activities
+    </h3>
+    <button mat-flat-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Add Activity
+    </button>
+  </div>
+
+  @if (!workspaceId()) {
+    <div class="no-workspace-hint">
+      <mat-icon>info_outline</mat-icon>
+      <span>Share your schedule via <strong>Registered Access</strong> to enable activities that family members can claim for driving and pickup.</span>
+    </div>
+  } @else if (loading()) {
+    <div class="loading-row">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Loading activities…</span>
+    </div>
+  } @else {
+
+    @let upcoming = upcomingEvents();
+    @let past = pastEvents();
+
+    @if (upcoming.length === 0 && past.length === 0) {
+      <div class="empty-hint">
+        <mat-icon>event_available</mat-icon>
+        <p>No activities yet. Add one to let family members volunteer to drive or pick up.</p>
+      </div>
+    }
+
+    @if (upcoming.length > 0) {
+      <div class="event-list">
+        @for (event of upcoming; track event.id) {
+          <mat-card class="event-card" (click)="openEditDialog(event)">
+            <mat-card-content>
+              <div class="event-row">
+                <mat-icon class="event-type-icon">{{ activityIcon(event.activityType) }}</mat-icon>
+                <div class="event-details">
+                  <span class="event-title">{{ event.title }}</span>
+                  @if (event.location) {
+                    <span class="event-sub">
+                      <mat-icon class="tiny-icon">place</mat-icon>{{ event.location }}
+                    </span>
+                  }
+                  <span class="event-sub">{{ event.startAt | date:'EEE, MMM d · h:mm a' }}</span>
+                  @if (event.participants.length > 0) {
+                    <span class="event-sub">
+                      <mat-icon class="tiny-icon">people</mat-icon>{{ event.participants.join(', ') }}
+                    </span>
+                  }
+                </div>
+                <div class="event-claims">
+                  @if (event.volunteers.length === 0) {
+                    <span class="claim-badge no-slots">No volunteer roles</span>
+                  }
+                  @for (slot of event.volunteers; track slot.id) {
+                    <span class="claim-badge" [class.claimed]="!!slot.tokenId">
+                      <mat-icon class="tiny-icon">{{ slot.tokenId ? 'check_circle' : 'person_raised_hand' }}</mat-icon>
+                      {{ slot.tokenId ? slot.name : slot.label }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    }
+
+    @if (past.length > 0) {
+      <details class="past-section">
+        <summary>Past activities ({{ past.length }})</summary>
+        <div class="event-list past-list">
+          @for (event of past; track event.id) {
+            <mat-card class="event-card past" (click)="openEditDialog(event)">
+              <mat-card-content>
+                <div class="event-row">
+                  <mat-icon class="event-type-icon">{{ activityIcon(event.activityType) }}</mat-icon>
+                  <div class="event-details">
+                    <span class="event-title">{{ event.title }}</span>
+                    <span class="event-sub">{{ event.startAt | date:'EEE, MMM d · h:mm a' }}</span>
+                  </div>
+                  <div class="event-claims">
+                    @for (slot of event.volunteers; track slot.id) {
+                      <span class="claim-badge" [class.claimed]="!!slot.tokenId">
+                        <mat-icon class="tiny-icon">{{ slot.tokenId ? 'check_circle' : 'person_raised_hand' }}</mat-icon>
+                        {{ slot.tokenId ? slot.name : slot.label }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </details>
+    }
+  }
+</div>

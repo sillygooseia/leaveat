@@ -1,0 +1,218 @@
+<header class="header">
+  <div class="container">
+    <a routerLink="/home" class="logo">
+      <mat-icon class="logo-icon">location_on</mat-icon>
+      <span class="logo-text">LeaveAt</span>
+    </a>
+    <nav class="nav">
+      <a routerLink="/premium" class="nav-link nav-link-premium">✦ Premium</a>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+        Start Scheduling
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="page-title">How LeaveAt Works</h1>
+      <p class="page-subtitle">
+        No accounts. No apps. Build a schedule in your browser and share it with a link.
+      </p>
+    </div>
+  </section>
+
+  <!-- Step-by-step -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-label">The basics — free for everyone</h2>
+
+      <ol class="steps-list">
+        <li class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <mat-icon class="step-icon">person_add</mat-icon>
+            <div>
+              <h3>Add your team</h3>
+              <p>
+                Open the scheduler and click <strong>Employees</strong> in the toolbar.
+                Add each person's name, role, and a colour. That's it — no accounts, no email addresses.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <mat-icon class="step-icon">view_week</mat-icon>
+            <div>
+              <h3>Build your week</h3>
+              <p>
+                Click the <strong>+</strong> button on any day column — or double-click anywhere in the grid — to
+                add a shift. Set the employee, start time, end time, and an optional note.
+                Drag shifts to move them; click to edit or delete.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <mat-icon class="step-icon">content_copy</mat-icon>
+            <div>
+              <h3>Copy a previous week (optional)</h3>
+              <p>
+                Use the <strong>Copy</strong> menu to duplicate last week's schedule into the current week,
+                copy shifts from one day to another, or clear everything and start fresh.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <mat-icon class="step-icon">share</mat-icon>
+            <div>
+              <h3>Share the link</h3>
+              <p>
+                Click <strong>Share</strong> to generate a link. Anyone who opens it can view the schedule — no
+                account needed. Free links last <strong>7 days</strong>.
+                The link is read-only; your original schedule stays in your browser.
+              </p>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Premium extras -->
+  <section class="section section-alt">
+    <div class="container">
+      <h2 class="section-label">With Premium — $29/year</h2>
+      <p class="section-intro">
+        One upgrade covers everything. No per-feature fees, no accounts.
+        The license lives on your device.
+      </p>
+
+      <div class="premium-grid">
+        <div class="premium-item">
+          <mat-icon>link</mat-icon>
+          <div>
+            <h3>30-day &amp; permanent share links</h3>
+            <p>Keep a schedule link alive as long as you need it, or make one that never expires.</p>
+          </div>
+        </div>
+
+        <div class="premium-item">
+          <mat-icon>folder_copy</mat-icon>
+          <div>
+            <h3>Multiple saved schedules</h3>
+            <p>Store different schedules in your browser — switch between them instantly.</p>
+          </div>
+        </div>
+
+        <div class="premium-item">
+          <mat-icon>backup</mat-icon>
+          <div>
+            <h3>Encrypted cloud backup</h3>
+            <p>Back up your schedules to the cloud and restore them on any device.</p>
+          </div>
+        </div>
+
+        <div class="premium-item">
+          <mat-icon>devices</mat-icon>
+          <div>
+            <h3>Registered device access for staff</h3>
+            <p>
+              Send each team member a one-time invite. They register their device and can always
+              check the latest schedule — still no accounts.
+            </p>
+          </div>
+        </div>
+
+        <div class="premium-item">
+          <mat-icon>fingerprint</mat-icon>
+          <div>
+            <h3>Passkey license recovery</h3>
+            <p>Recover your license using a passkey — no restore codes to lose, no email resets.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-cta">
+        <button mat-raised-button routerLink="/premium" class="premium-btn">
+          <mat-icon>workspace_premium</mat-icon>
+          See Premium
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tips -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-label">Tips &amp; Tricks</h2>
+      <div class="tips-grid">
+        <div class="tip">
+          <mat-icon>tooltip</mat-icon>
+          <p><strong>Double-click</strong> empty space in a day column to quickly add a shift.</p>
+        </div>
+        <div class="tip">
+          <mat-icon>drag_indicator</mat-icon>
+          <p><strong>Drag</strong> any shift card to move it to a different day.</p>
+        </div>
+        <div class="tip">
+          <mat-icon>bar_chart</mat-icon>
+          <p>Check the <strong>Coverage</strong> panel to see if you're under- or over-staffed each day.</p>
+        </div>
+        <div class="tip">
+          <mat-icon>print</mat-icon>
+          <p>Use <strong>Print</strong> from the menu to generate a clean printable schedule.</p>
+        </div>
+        <div class="tip">
+          <mat-icon>schedule</mat-icon>
+          <p><strong>Hour totals</strong> per employee are shown automatically — set weekly limits in the employee panel.</p>
+        </div>
+        <div class="tip">
+          <mat-icon>refresh</mat-icon>
+          <p>Your schedule is saved automatically on every change — no save button needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-cta">
+    <div class="container cta-block">
+      <h2>Ready to try it?</h2>
+      <p>No sign-up. Nothing to install. Open in any browser and go.</p>
+      <button mat-raised-button color="primary" routerLink="/" class="main-cta-btn">
+        Start Scheduling — Free
+      </button>
+      <p class="cta-sub">
+        Questions? <a routerLink="/help" class="inline-link">Visit Help</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <nav class="footer-nav">
+      <a routerLink="/about" class="footer-link">About</a>
+      <a routerLink="/help" class="footer-link">Help</a>
+      <a routerLink="/how-it-works" class="footer-link">How It Works</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </nav>
+    <p class="footer-copyright">© 2024 LeaveAt. Simple schedules, shared easily.</p>
+  </div>
+</footer>

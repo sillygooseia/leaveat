@@ -1,0 +1,545 @@
+<!-- ===== PROMO HERO BANNER ===== -->
+@if (!bannerDismissed() && !isPremium() && promoRemaining() !== 0) {
+  <div class="promo-hero-banner">
+    <button class="promo-hero-banner__close" (click)="dismissBanner()" aria-label="Dismiss">&times;</button>
+    <div class="promo-hero-banner__inner">
+      <div class="promo-hero-banner__pill">🎁 Limited Time</div>
+      <h2 class="promo-hero-banner__title">Get 1 Year of Premium — Free</h2>
+      <p class="promo-hero-banner__sub">
+        We're giving away <strong>100 free licenses</strong> to early users. Full features. No credit card.
+      </p>
+      <div class="promo-hero-banner__track">
+        <div class="promo-hero-banner__bar"
+             [style.width.%]="promoRemaining() !== null ? ((promoTotal() - promoRemaining()!) / promoTotal()) * 100 : 0">
+        </div>
+      </div>
+      <p class="promo-hero-banner__count">
+        <strong>{{ promoRemaining() }}</strong> of {{ promoTotal() }} remaining
+      </p>
+      <div class="promo-hero-banner__actions">
+        <a href="#promo-section" class="promo-hero-banner__cta">Claim My Free License</a>
+        <button class="promo-hero-banner__skip" (click)="dismissBanner()">No thanks</button>
+      </div>
+    </div>
+  </div>
+}
+
+<header class="header">
+  <div class="container">
+    <div class="logo">
+      <mat-icon class="logo-icon">location_on</mat-icon>
+      <span class="logo-text">LeaveAt</span>
+    </div>
+    <nav class="nav">
+      <a routerLink="/how-it-works" class="nav-link nav-link-desktop">How It Works</a>
+      <a routerLink="/premium" class="nav-link nav-link-premium nav-link-desktop">✦ Premium</a>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+        Start Scheduling
+      </button>
+      <button mat-icon-button [matMenuTriggerFor]="headerMenu" xPosition="before" class="hamburger-btn" aria-label="Open menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </nav>
+    <mat-menu #headerMenu="matMenu">
+      <a mat-menu-item routerLink="/how-it-works">
+        <mat-icon>info</mat-icon>
+        How It Works
+      </a>
+      <a mat-menu-item routerLink="/premium">
+        <mat-icon>workspace_premium</mat-icon>
+        Premium
+      </a>
+    </mat-menu>
+  </div>
+</header>
+
+<main>
+  @if (viewerAccess()) {
+    <div class="viewer-access-banner">
+      <mat-icon>calendar_today</mat-icon>
+      <span class="banner-text">
+        <strong>{{ viewerAccess()!.workspaceName }}</strong> &mdash; {{ viewerAccess()!.memberName }}
+      </span>
+      <a mat-raised-button color="accent" routerLink="/my-schedule" class="banner-cta">
+        View My Schedule
+      </a>
+    </div>
+  }
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">Build a schedule<br>in seconds.</h1>
+        <p class="hero-subtitle">
+          No sign-ups. No accounts. Just create
+          and share your weekly schedule with
+          a simple link.
+        </p>
+        <button mat-raised-button color="primary" routerLink="/" class="hero-cta">
+          Get Started Now
+        </button>
+        <p class="hero-tagline">Simple, local, and temporary – it's just a tool.</p>
+      </div>
+      <div class="hero-image">
+        <div class="schedule-preview">
+          <div class="preview-header">
+            <mat-icon class="check-icon">check_circle</mat-icon>
+            <span>This Week's Schedule</span>
+          </div>
+          <div class="preview-grid">
+            <div class="preview-day">Mon</div>
+            <div class="preview-day">Tue</div>
+            <div class="preview-day">Wed</div>
+            <div class="preview-day">Thu</div>
+            <div class="preview-day">Fri</div>
+            <div class="preview-day">Sat</div>
+            <div class="preview-shift shift-blue">Hannah<br><small>9:00am - 3:00pm</small></div>
+            <div class="preview-shift shift-green">Mark<br><small>9:00am - 8:00pm</small></div>
+            <div class="preview-shift shift-yellow">Sarah<br><small>10:00am - 6:00pm</small></div>
+            <div class="preview-shift shift-orange">Tom<br><small>3:00pm - 8:00pm</small></div>
+            <div class="preview-shift shift-darkblue">Sarah<br><small>10:00am - 4:00pm</small></div>
+            <div class="preview-shift shift-teal">Tom<br><small>9:00am - Close</small></div>
+            <div class="preview-shift shift-darkgreen">Lina<br><small>6:00am - 3:00pm</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="how-it-works">
+    <div class="container">
+      <div class="feature-cards">
+        <mat-card class="feature-card">
+          <mat-icon class="feature-icon" color="primary">calendar_today</mat-icon>
+          <h3>Create in Seconds</h3>
+          <p>Drag, drop, and adjust your schedule with ease.</p>
+        </mat-card>
+        
+        <mat-card class="feature-card">
+          <mat-icon class="feature-icon" color="primary">link</mat-icon>
+          <h3>Share Instantly</h3>
+          <p>Send a 7 day link to your team or family.</p>
+        </mat-card>
+        
+        <mat-card class="feature-card">
+          <mat-icon class="feature-icon" color="primary">no_accounts</mat-icon>
+          <h3>No Sign-Ups Needed</h3>
+          <p>Everyone can view – no accounts required.</p>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modes Section -->
+  <section class="modes-section">
+    <div class="container">
+      <h2 class="section-title">One tool, three ways to use it.</h2>
+      <p class="section-subtitle">Pick the mode that fits your life.</p>
+
+      <div class="modes-cards">
+        <mat-card class="mode-card mode-card--personal">
+          <div class="mode-card-icon-wrap">
+            <mat-icon class="mode-card-icon">person</mat-icon>
+          </div>
+          <h3 class="mode-card-title">Personal</h3>
+          <p class="mode-card-desc">Plan your own week. Block time, track commitments, and share your availability with anyone — no account needed.</p>
+          <ul class="mode-card-list">
+            <li><mat-icon>check</mat-icon> Your schedule, your device</li>
+            <li><mat-icon>check</mat-icon> Share a read-only link in seconds</li>
+            <li><mat-icon>check</mat-icon> No sign-up, no storage</li>
+          </ul>
+        </mat-card>
+
+        <mat-card class="mode-card mode-card--family">
+          <div class="mode-card-icon-wrap">
+            <mat-icon class="mode-card-icon">family_restroom</mat-icon>
+          </div>
+          <h3 class="mode-card-title">Family</h3>
+          <p class="mode-card-desc">Coordinate the household at a glance. Keep everyone's activities, pickups, and commitments in one shared view.</p>
+          <ul class="mode-card-list">
+            <li><mat-icon>check</mat-icon> Add each family member</li>
+            <li><mat-icon>check</mat-icon> Colour-coded at a glance</li>
+            <li><mat-icon>check</mat-icon> Share with the whole family via link</li>
+            <li><mat-icon>sports_soccer</mat-icon> Activities with volunteer sign-up</li>
+          </ul>
+        </mat-card>
+
+        <mat-card class="mode-card mode-card--work">
+          <div class="mode-card-icon-wrap">
+            <mat-icon class="mode-card-icon">work</mat-icon>
+          </div>
+          <h3 class="mode-card-title">Work</h3>
+          <p class="mode-card-desc">Build a staff schedule in minutes. Assign shifts, share them with your team, and let everyone check their schedule without an app.</p>
+          <ul class="mode-card-list">
+            <li><mat-icon>check</mat-icon> Staff shifts & schedules</li>
+            <li><mat-icon>check</mat-icon> Team members check their own schedule</li>
+            <li><mat-icon>check</mat-icon> Premium: device-based access & backups</li>
+          </ul>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Activities Feature Callout -->
+  <section class="activities-callout">
+    <div class="container">
+      <div class="activities-callout-inner">
+        <div class="activities-callout-text">
+          <span class="activities-callout-tag">Family Mode</span>
+          <h2 class="activities-callout-title">Coordinate rides, pickups, and everything in between.</h2>
+          <p class="activities-callout-desc">
+            Track kids' activities alongside your schedule. Family members open their personal link
+            and volunteer for what they can do &mdash; no app, no account needed.
+          </p>
+          <ul class="activities-callout-list">
+            <li>
+              <mat-icon>sports_soccer</mat-icon>
+              <span>Add activities with date, time, and location</span>
+            </li>
+            <li>
+              <mat-icon>person_raised_hand</mat-icon>
+              <span>Define any volunteer roles: Driver, Pick up, Bring snacks</span>
+            </li>
+            <li>
+              <mat-icon>phone_iphone</mat-icon>
+              <span>Family members claim a role from their personal link &mdash; no account needed</span>
+            </li>
+            <li>
+              <mat-icon>calendar_today</mat-icon>
+              <span>Activities appear inline on the weekly calendar</span>
+            </li>
+          </ul>
+          <button mat-raised-button color="primary" routerLink="/" class="activities-callout-cta">
+            Try It Free
+          </button>
+        </div>
+        <div class="activities-callout-preview">
+          <div class="activity-preview-card">
+            <div class="apc-header">
+              <mat-icon class="apc-icon">sports_soccer</mat-icon>
+              <div>
+                <span class="apc-title">Johnny's Basketball Practice</span>
+                <span class="apc-meta">Tue &middot; 4:00 PM &middot; Riverside Gym</span>
+              </div>
+            </div>
+            <div class="apc-slots">
+              <div class="apc-slot apc-slot--taken">
+                <mat-icon>check_circle</mat-icon>
+                <span class="apc-slot-label">Driver</span>
+                <span class="apc-slot-name">Mom</span>
+              </div>
+              <div class="apc-slot apc-slot--open">
+                <mat-icon>person_raised_hand</mat-icon>
+                <span class="apc-slot-label">Pick up</span>
+                <button class="apc-volunteer-btn">I'll help</button>
+              </div>
+            </div>
+          </div>
+          <div class="activity-preview-card">
+            <div class="apc-header">
+              <mat-icon class="apc-icon">sports_baseball</mat-icon>
+              <div>
+                <span class="apc-title">Sue's Baseball Game</span>
+                <span class="apc-meta">Sat &middot; 10:00 AM &middot; Memorial Field</span>
+              </div>
+            </div>
+            <div class="apc-slots">
+              <div class="apc-slot apc-slot--taken">
+                <mat-icon>check_circle</mat-icon>
+                <span class="apc-slot-label">Driver</span>
+                <span class="apc-slot-name">Dad</span>
+              </div>
+              <div class="apc-slot apc-slot--taken">
+                <mat-icon>check_circle</mat-icon>
+                <span class="apc-slot-label">Pick up</span>
+                <span class="apc-slot-name">Dad</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work Mode Feature Callout -->
+  <section class="work-callout">
+    <div class="container">
+      <div class="work-callout-inner">
+        <div class="work-callout-preview">
+          <div class="shift-preview-card">
+            <div class="spc-header">
+              <mat-icon class="spc-icon">storefront</mat-icon>
+              <div>
+                <span class="spc-title">Front Counter</span>
+                <span class="spc-meta">Mon &middot; 9:00 AM &ndash; 5:00 PM &middot; Room A</span>
+              </div>
+              <span class="spc-badge spc-badge--full">3 / 3</span>
+            </div>
+            <div class="spc-staff">
+              <div class="spc-staff-row">
+                <mat-icon>person</mat-icon>
+                <span>Hannah</span>
+                <span class="spc-hours">9:00 AM &ndash; 3:00 PM</span>
+              </div>
+              <div class="spc-staff-row">
+                <mat-icon>person</mat-icon>
+                <span>Mark</span>
+                <span class="spc-hours">9:00 AM &ndash; 5:00 PM</span>
+              </div>
+              <div class="spc-staff-row">
+                <mat-icon>person</mat-icon>
+                <span>Sarah</span>
+                <span class="spc-hours">12:00 PM &ndash; 5:00 PM</span>
+              </div>
+            </div>
+          </div>
+          <div class="shift-preview-card">
+            <div class="spc-header">
+              <mat-icon class="spc-icon">local_cafe</mat-icon>
+              <div>
+                <span class="spc-title">Kitchen</span>
+                <span class="spc-meta">Mon &middot; 3:00 PM &ndash; Close &middot; Room B</span>
+              </div>
+              <span class="spc-badge spc-badge--short">1 / 2</span>
+            </div>
+            <div class="spc-staff">
+              <div class="spc-staff-row">
+                <mat-icon>person</mat-icon>
+                <span>Tom</span>
+                <span class="spc-hours">3:00 PM &ndash; Close</span>
+              </div>
+              <div class="spc-staff-row spc-staff-row--open">
+                <mat-icon>person_outline</mat-icon>
+                <span class="spc-open-label">Open slot</span>
+                <span class="spc-hours">3:00 PM &ndash; Close</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="work-callout-text">
+          <span class="work-callout-tag">Work Mode</span>
+          <h2 class="work-callout-title">Staff schedules that actually work.</h2>
+          <p class="work-callout-desc">
+            Build your weekly schedule in minutes. Assign shifts, set hours, define rooms &mdash;
+            then share one link so your whole team can check when they're in.
+          </p>
+          <ul class="work-callout-list">
+            <li>
+              <mat-icon>schedule</mat-icon>
+              <span>Set shift start &amp; end times for every employee</span>
+            </li>
+            <li>
+              <mat-icon>meeting_room</mat-icon>
+              <span>Assign rooms or stations to each shift slot</span>
+            </li>
+            <li>
+              <mat-icon>group</mat-icon>
+              <span>Track required headcount &mdash; see gaps at a glance</span>
+            </li>
+            <li>
+              <mat-icon>phone_iphone</mat-icon>
+              <span>Staff check their own schedule from a personal link</span>
+            </li>
+            <li>
+              <mat-icon>print</mat-icon>
+              <span>Print a clean work chart or staffing report in one click</span>
+            </li>
+          </ul>
+          <button mat-raised-button color="primary" routerLink="/" class="work-callout-cta">
+            Build a Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title">Keep it simple, share it fast.</h2>
+      <p class="section-subtitle">Upgrade if you need a bit more:</p>
+      
+      <div class="workflow-cards">
+        <mat-card class="workflow-card">
+          <mat-icon class="workflow-icon" color="primary">person_add</mat-icon>
+          <h3>Add Your Team</h3>
+          <p>Set up staff or family right in your browser.</p>
+        </mat-card>
+        
+        <mat-card class="workflow-card">
+          <mat-icon class="workflow-icon" color="primary">view_week</mat-icon>
+          <h3>Build Your Week</h3>
+          <p>Arrange shifts & plans on a weekly board.</p>
+        </mat-card>
+        
+        <mat-card class="workflow-card">
+          <mat-icon class="workflow-icon" color="primary">send</mat-icon>
+          <h3>Share the Link</h3>
+          <p>Send a temporary link that expires in 7 days.</p>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium Section -->
+  <section class="premium-section" id="tips">
+    <div class="container">
+      <div class="premium-hero">
+        <div class="premium-hero-content">
+          <span class="premium-badge">✦ Premium</span>
+          <h2 class="premium-title">Need a little more?</h2>
+          <p class="premium-description">
+            One simple upgrade unlocks everything — no per-feature fees.
+          </p>
+          <ul class="premium-features">
+            <li><mat-icon>link</mat-icon> 30-day &amp; permanent share links</li>
+            <li><mat-icon>folder_copy</mat-icon> Save multiple schedules</li>
+            <li><mat-icon>backup</mat-icon> Encrypted cloud backup &amp; restore</li>
+            <li><mat-icon>devices</mat-icon> Registered device access — staff check their schedule anytime</li>
+            <li><mat-icon>fingerprint</mat-icon> Passkey license recovery</li>
+          </ul>
+          <div class="premium-cta-row">
+            <span class="premium-coming-soon-label">Paid licenses coming soon</span>
+            <button mat-raised-button routerLink="/premium" class="premium-cta-button">
+              Learn More
+            </button>
+          </div>
+          <p class="premium-note">Get a free 1-year license below while early access lasts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== PROMO SECTION ===== -->
+<section id="promo-section" class="promo-section">
+  <div class="container">
+    <div class="promo-inner">
+
+      @if (isPremium()) {
+        <!-- Already premium -->
+        <div class="promo-state promo-state--success">
+          <span class="promo-state__icon">✦</span>
+          <h2 class="promo-state__title">You're already on Premium!</h2>
+          <p class="promo-state__sub">Enjoy all the features. Thanks for being an early user.</p>
+        </div>
+
+      } @else if (promoClaimed()) {
+        <!-- Just claimed -->
+        <div class="promo-state promo-state--success">
+          <span class="promo-state__icon">🎉</span>
+          <h2 class="promo-state__title">Premium Activated!</h2>
+          <p class="promo-state__sub">Your free 1-year LeaveAt Premium license is now active on this device.</p>
+          <a mat-raised-button routerLink="/" class="promo-go-btn">Go to Schedule</a>
+        </div>
+
+      } @else if (promoRemaining() === 0) {
+        <!-- Pool exhausted -->
+        <div class="promo-state promo-state--exhausted">
+          <span class="promo-state__icon">🔒</span>
+          <h2 class="promo-state__title">All 100 free licenses have been claimed.</h2>
+          <p class="promo-state__sub">You can still unlock everything with a paid license &mdash; $29/year.</p>
+          <a mat-raised-button routerLink="/premium" class="promo-go-btn">Get Premium &rarr;</a>
+        </div>
+
+      } @else {
+        <!-- Active promo -->
+        <div class="promo-badge">🎁 Early Access Offer</div>
+        <h2 class="promo-title">Get 1 Year of Premium — Free</h2>
+        <p class="promo-desc">
+          We're offering 100 free 1-year Premium licenses to our earliest users.
+          Full features. No credit card. No account.
+        </p>
+
+        <div class="promo-counter">
+          <span class="promo-counter__num">{{ promoRemaining() ?? '...' }}</span>
+          <span class="promo-counter__label">of {{ promoTotal() }} remaining</span>
+        </div>
+
+        <div class="promo-progress">
+          <div class="promo-progress__bar"
+               [style.width.%]="promoRemaining() !== null ? ((promoTotal() - promoRemaining()!) / promoTotal()) * 100 : 0">
+          </div>
+        </div>
+
+        @if (promoError()) {
+          <p class="promo-error">{{ promoError() }}</p>
+        }
+
+        <button class="promo-cta-btn"
+                (click)="claimPromo()"
+                [disabled]="promoClaiming()">
+          @if (promoClaiming()) {
+            <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-right:8px"></mat-spinner>
+          }
+          Claim My Free License
+        </button>
+
+        <p class="promo-fine">One per IP address. License stored locally on your device. No account required.</p>
+      }
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== SUPPORT SECTION ===== -->
+<section class="support-section" id="support">
+  <div class="container">
+    <div class="support-inner">
+      <h2 class="support-title">Contact Support</h2>
+      <p class="support-sub">Have a question or problem? Send us a message and we'll get back to you.</p>
+
+      @if (supportSent()) {
+        <div class="support-state support-state--success">
+          <span class="support-state__icon">✓</span>
+          <p class="support-state__msg">Message sent! We'll be in touch soon.</p>
+        </div>
+      } @else {
+        <form class="support-form" (ngSubmit)="submitSupport()" #supportForm="ngForm" novalidate>
+          <div class="support-field">
+            <label class="support-label" for="supportName">Name</label>
+            <input id="supportName" class="support-input" type="text" name="name"
+                   [(ngModel)]="supportName" required maxlength="200"
+                   placeholder="Your name" autocomplete="name" />
+          </div>
+          <div class="support-field">
+            <label class="support-label" for="supportEmail">Email</label>
+            <input id="supportEmail" class="support-input" type="email" name="email"
+                   [(ngModel)]="supportEmail" required maxlength="254"
+                   placeholder="your@email.com" autocomplete="email" />
+          </div>
+          <div class="support-field">
+            <label class="support-label" for="supportMessage">Message</label>
+            <textarea id="supportMessage" class="support-input support-textarea" name="message"
+                      [(ngModel)]="supportMessage" required maxlength="5000"
+                      rows="5" placeholder="Describe your issue or question..."></textarea>
+          </div>
+          @if (supportError()) {
+            <p class="support-error">{{ supportError() }}</p>
+          }
+          <button class="support-submit-btn" type="submit" [disabled]="supportSubmitting() || !supportForm.valid">
+            @if (supportSubmitting()) {
+              <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-right:8px"></mat-spinner>
+            }
+            Send Message
+          </button>
+        </form>
+      }
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <nav class="footer-nav">
+      <a routerLink="/about" class="footer-link">About</a>
+      <a routerLink="/help" class="footer-link">Help</a>
+      <a routerLink="/how-it-works" class="footer-link">How It Works</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </nav>
+    <p class="footer-copyright">© 2024 LeaveAt. Simple schedules, shared easily.</p>
+  </div>
+</footer>

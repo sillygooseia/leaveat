@@ -1,0 +1,172 @@
+<header class="header">
+  <div class="container">
+    <a routerLink="/home" class="logo">
+      <mat-icon class="logo-icon">location_on</mat-icon>
+      <span class="logo-text">LeaveAt</span>
+    </a>
+    <nav class="nav">
+      <a routerLink="/how-it-works" class="nav-link">How It Works</a>
+      <a routerLink="/premium" class="nav-link nav-link-premium">✦ Premium</a>
+      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+        Start Scheduling
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <h1 class="page-title">Terms of Service</h1>
+      <p class="page-meta">Last updated: {{ lastUpdated }}</p>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+
+      <p class="lead">
+        By using LeaveAt ("the Service"), you agree to these terms. If you do not agree, please do not use the Service.
+        These terms apply to both the free and Premium tiers.
+      </p>
+
+      <div class="section-block">
+        <h2>1. What LeaveAt Is</h2>
+        <p>
+          LeaveAt is a browser-based scheduling tool. Schedules are stored locally in your browser using
+          <code>localStorage</code>. No user accounts are created. When you generate a share link, a
+          read-only snapshot of your schedule is temporarily stored on our servers for the duration of
+          the link's validity, then deleted.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>2. Use of the Service</h2>
+        <p>You may use LeaveAt for lawful purposes only. You agree not to:</p>
+        <ul>
+          <li>Use the Service to store or share illegal, harmful, or abusive content.</li>
+          <li>Attempt to reverse-engineer, scrape, or overload the Service infrastructure.</li>
+          <li>Use automated tools to generate share links in volume.</li>
+          <li>Circumvent any rate limits or technical access controls.</li>
+        </ul>
+        <p>
+          We reserve the right to decline service to anyone we believe is misusing or abusing the platform.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>3. Premium License</h2>
+        <p>
+          LeaveAt Premium is sold as an annual license at $29/year per device. The license key is stored
+          on your device. By purchasing, you agree to the following:
+        </p>
+        <ul>
+          <li>
+            The license is for personal or business use on a single device at a time. You may transfer
+            the license to another device using the built-in transfer tools (QR code, restore code, or passkey).
+          </li>
+          <li>
+            Licenses may not be shared, resold, or redistributed.
+          </li>
+          <li>
+            Payment is processed by Stripe. We do not store your payment card information.
+          </li>
+          <li>
+            Refunds are issued within 14 days of purchase if the Premium features are not functioning as
+            described. Please contact <a href="mailto:support@leaveat.com">support&#64;leaveat.com</a>.
+          </li>
+          <li>
+            License renewals are not automatic unless you enable auto-renewal at checkout.
+          </li>
+        </ul>
+      </div>
+
+      <div class="section-block">
+        <h2>4. Data and Your Responsibility</h2>
+        <p>
+          Because your schedule data lives in your browser, you are responsible for it. Clearing your
+          browser storage will permanently delete your local schedule unless you have created a Premium cloud backup.
+          We are not liable for data loss caused by browser clearing, device changes, or hardware failure.
+        </p>
+        <p>
+          Any content you include in a shared schedule snapshot (employee names, shift details, notes) is
+          your responsibility. Do not include sensitive personal data such as national ID numbers, financial
+          information, or medical information in schedules.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>5. Availability and Changes</h2>
+        <p>
+          We provide the Service on a best-effort basis. We do not guarantee uninterrupted availability.
+          We reserve the right to modify, suspend, or discontinue any part of the Service at any time.
+          If we discontinue Premium, affected users will receive a pro-rata refund.
+        </p>
+        <p>
+          We may update these Terms from time to time. Continued use of the Service after changes
+          constitutes acceptance of the updated Terms. Material changes will be noted on this page with a
+          revised date.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>6. Disclaimer of Warranties</h2>
+        <p>
+          The Service is provided "as is" without warranty of any kind, express or implied. We do not
+          warrant that the Service will be error-free, uninterrupted, or fit for any particular purpose.
+          Use of the Service is at your own risk.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>7. Limitation of Liability</h2>
+        <p>
+          To the fullest extent permitted by law, LeaveAt and its operators will not be liable for any
+          indirect, incidental, special, or consequential damages arising from your use of the Service,
+          including but not limited to data loss, schedule errors, or missed shifts.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>8. Governing Law</h2>
+        <p>
+          These Terms are governed by the laws of the jurisdiction in which LeaveAt operates, without
+          regard to conflict of law principles.
+        </p>
+      </div>
+
+      <div class="section-block">
+        <h2>9. Contact</h2>
+        <p>
+          Questions about these Terms? Email us at
+          <a href="mailto:support@leaveat.com">support&#64;leaveat.com</a>.
+        </p>
+      </div>
+
+      <div class="policy-nav">
+        <a routerLink="/privacy" class="policy-link">
+          <mat-icon>privacy_tip</mat-icon>
+          Read our Privacy Policy
+        </a>
+        <a routerLink="/home" class="policy-link">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Home
+        </a>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <nav class="footer-nav">
+      <a routerLink="/about" class="footer-link">About</a>
+      <a routerLink="/help" class="footer-link">Help</a>
+      <a routerLink="/how-it-works" class="footer-link">How It Works</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </nav>
+    <p class="footer-copyright">© 2024 LeaveAt. Simple schedules, shared easily.</p>
+  </div>
+</footer>

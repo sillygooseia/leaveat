@@ -1,0 +1,177 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ data.personalMode ? 'event' : 'event_note' }}</mat-icon>
+  {{ isEditMode ? 'Edit ' + entryLabel : 'Add ' + entryLabel }}
+</h2>
+
+<mat-dialog-content>
+  <form>
+    <div class="day-badge">
+      <mat-icon>calendar_today</mat-icon>
+      <span>{{ dayNames[day] }}</span>
+    </div>
+
+    <div class="form-section">
+      @if (!data.personalMode) {
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Employee</mat-label>
+          <mat-select [(ngModel)]="employeeId" name="employeeId" required>
+            @for (employee of data.employees; track employee.id) {
+              <mat-option [value]="employee.id">
+                <div class="employee-option">
+                  <div class="color-indicator" [style.background-color]="employee.color"></div>
+                  <span>{{ employee.name }}</span>
+                  <span class="employee-role">{{ employee.role }}</span>
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (hasRooms()) {
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Room</mat-label>
+          <mat-select [value]="roomId()" (selectionChange)="roomId.set($event.value)" name="roomId">
+            <mat-option [value]="undefined">&#8212; No room assigned &#8212;</mat-option>
+            @for (room of availableRooms(); track room.id) {
+              <mat-option [value]="room.id">
+                {{ room.name }}{{ room.ageGroup ? ' (' + room.ageGroup + ')' : '' }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Assign to a room for ratio tracking</mat-hint>
+        </mat-form-field>
+      }
+
+      <div class="time-section">
+        <mat-form-field appearance="outline">
+          <mat-label>Start Time</mat-label>
+          <mat-icon matPrefix>schedule</mat-icon>
+          <input matInput type="time" [(ngModel)]="startTime" name="startTime" required>
+        </mat-form-field>
+
+        <div class="time-arrow">
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End Time</mat-label>
+          <mat-icon matPrefix>schedule</mat-icon>
+          <input matInput type="time" [(ngModel)]="endTime" name="endTime" required>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Notes (optional)</mat-label>
+        <mat-icon matPrefix>description</mat-icon>
+        <textarea matInput [(ngModel)]="notes" name="notes" rows="2" placeholder="Special instructions..."></textarea>
+      </mat-form-field>
+    </div>
+
+    @if (!data.personalMode && employeeId() && data.employees.length > 0) {
+      <div class="preview-section">
+        <div class="preview-header">
+          <mat-icon>visibility</mat-icon>
+          <span>Preview</span>
+        </div>
+        <div class="shift-preview" [style.background-color]="getEmployee(employeeId())?.color + '15'" [style.border-left-color]="getEmployee(employeeId())?.color">
+          <div class="shift-header">
+            <div class="shift-employee">
+              <div class="color-dot" [style.background-color]="getEmployee(employeeId())?.color"></div>
+              <span class="employee-name">{{ getEmployee(employeeId())?.name }}</span>
+            </div>
+            <span class="shift-time">
+              <mat-icon>schedule</mat-icon>
+              {{ startTime() }} - {{ endTime() }}
+            </span>
+          </div>
+          @if (notes()) {
+            <div class="shift-notes">
+              <mat-icon>notes</mat-icon>
+              <span>{{ notes() }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (hasConflicts()) {
+      <div class="alert alert-warning">
+        <div class="alert-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="alert-content">
+          <div class="alert-title">Schedule Conflict</div>
+          <div class="alert-message">{{ getConflictMessage() }}</div>
+          <div class="alert-note">You can still save this shift, but be aware of the overlap.</div>
+        </div>
+      </div>
+    }
+
+    @if (employeeId() && startTime() && endTime()) {
+      <div class="hours-summary" [ngClass]="getHoursClass()">
+        <div class="hours-main">
+          <mat-icon>schedule</mat-icon>
+          <div class="hours-details">
+            <div class="hours-row">
+              <span class="hours-label">This shift:</span>
+              <span class="hours-value">{{ getFormattedThisShift() }}</span>
+            </div>
+            <div class="hours-row">
+              <span class="hours-label">Weekly total:</span>
+              <span class="hours-value">{{ getFormattedCurrent() }} → {{ getFormattedNewTotal() }}</span>
+            </div>
+          </div>
+        </div>
+        @if (getHoursStatus() === 'over') {
+          <div class="hours-badge hours-badge-error">
+            <mat-icon>error</mat-icon>
+            <span>Over limit</span>
+          </div>
+        } @else if (getHoursStatus() === 'warning') {
+          <div class="hours-badge hours-badge-warning">
+            <mat-icon>warning</mat-icon>
+            <span>Near limit</span>
+          </div>
+        } @else {
+          <div class="hours-badge hours-badge-ok">
+            <mat-icon>check_circle</mat-icon>
+            <span>Within limit</span>
+          </div>
+        }
+      </div>
+    }
+
+    @if (isEditMode && hasCoverageIssues()) {
+      <div class="alert alert-coverage">
+        <div class="alert-icon">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <div class="alert-content">
+          <div class="alert-title">Coverage Warning</div>
+          <div class="alert-message">{{ getCoverageDeleteWarning() }}</div>
+        </div>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (isEditMode) {
+    <button mat-button color="warn" (click)="delete()" style="margin-right: auto;">
+      Delete
+    </button>
+  }
+  @if (!isEditMode) {
+    <div class="create-another-checkbox" style="margin-right: auto;">
+      <label>
+        <input type="checkbox" [(ngModel)]="createAnother" name="createAnother">
+        <span>Create another</span>
+      </label>
+    </div>
+  }
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!isValid">
+    {{ isEditMode ? 'Update' : 'Add ' + entryLabel }}
+  </button>
+</mat-dialog-actions>

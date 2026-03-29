@@ -1,0 +1,82 @@
+.join-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
+  padding: 2rem 1rem;
+}
+
+.state-card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+}
+
+.state-icon {
+  font-size: 3rem;
+  height: 3rem;
+  width: 3rem;
+  margin-bottom: 1rem;
+  color: #888;
+}
+
+.invite-icon {
+  color: var(--mdc-theme-primary, #3f51b5);
+}
+
+.error-card .state-icon {
+  color: #e53935;
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+h2 {
+  margin: 0.25rem 0;
+  font-size: 1.5rem;
+}
+
+.workspace-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.member-info {
+  color: rgba(0, 0, 0, 0.7);
+  margin: 0;
+}
+
+.description {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.register-btn {
+  margin-top: 1rem;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 1rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: rgba(0, 0, 0, 0.6);
+}

@@ -1,0 +1,249 @@
+.wizard-container {
+  padding: 1.5rem;
+  width: 460px;
+  max-width: 90vw;
+  box-sizing: border-box;
+}
+
+/* ── Step indicator ── */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.step-dot.active {
+  width: 26px;
+  border-radius: 5px;
+  background: #2196f3;
+}
+
+.step-dot.done {
+  background: #4caf50;
+}
+
+.step-connector {
+  width: 32px;
+  height: 2px;
+  background: #e0e0e0;
+  flex-shrink: 0;
+}
+
+/* ── Header ── */
+.wizard-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.wizard-header .step-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #2196f3;
+  margin-bottom: 0.75rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wizard-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: #212121;
+}
+
+.wizard-header p {
+  color: #757575;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ── Mode cards ── */
+.mode-cards {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mode-card {
+  flex: 1;
+  position: relative;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.25rem 1rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.mode-card:hover {
+  border-color: #90caf9;
+  background: #f8f9ff;
+}
+
+.mode-card.selected {
+  border-color: #2196f3;
+  background: #e3f2fd;
+}
+
+.mode-card-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  height: 20px;
+}
+
+.mode-card-check mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #2196f3;
+}
+
+.mode-icon {
+  font-size: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  color: #9e9e9e;
+  margin-bottom: 0.6rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: color 0.2s ease;
+}
+
+.mode-card.selected .mode-icon {
+  color: #1976d2;
+}
+
+.mode-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  color: #212121;
+}
+
+.mode-card p {
+  font-size: 0.82rem;
+  color: #757575;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ── Name step ── */
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.mode-badge mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ── Done step ── */
+.done-step {
+  text-align: center;
+}
+
+.done-icon {
+  font-size: 60px !important;
+  width: 60px !important;
+  height: 60px !important;
+  color: #43a047 !important;
+  margin-bottom: 0.5rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.done-step h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: #212121;
+}
+
+.done-subtitle {
+  color: #616161;
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem;
+  line-height: 1.5;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+  text-align: left;
+}
+
+.tips-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+  color: #424242;
+}
+
+.tips-list li:last-child {
+  border-bottom: none;
+}
+
+.tips-list mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  color: #2196f3;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* ── Actions ── */
+.wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+  .wizard-container {
+    width: auto;
+    padding: 1rem;
+  }
+
+  .mode-cards {
+    flex-direction: column;
+  }
+}
