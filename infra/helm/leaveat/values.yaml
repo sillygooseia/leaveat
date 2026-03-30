@@ -4,7 +4,7 @@ replicaCount: 1
 backend:
   image:
     repository: silentcoil.sillygooseia.com:5000/sillygooseia/bafgo-leaveat-backend
-    tag: latest
+    tag: ""  # set by deploy.ps1 via --set backend.image.tag=<timestamp>
   port: 3000
   cleanupIntervalMs: 300000  # 5 minutes
   # licensePublicKey: ""  # For dev only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
@@ -20,7 +20,7 @@ license:
   k8sName: bafgo-leaveat-license
   image:
     repository: silentcoil.sillygooseia.com:5000/sillygooseia/bafgo-leaveat-license
-    tag: latest
+    tag: ""  # set by deploy.ps1 via --set license.image.tag=<timestamp>
   port: 3001
   resources:
     requests:
@@ -63,7 +63,7 @@ redis:
 frontend:
   image:
     repository: silentcoil.sillygooseia.com:5000/sillygooseia/bafgo-leaveat-frontend
-    tag: latest
+    tag: ""
   port: 80
   resources:
     requests:
@@ -91,13 +91,13 @@ ingress:
     permanent: true
 
 suiteIngress:
-  enabled: true
+  enabled: false
   host: bafgo.com
   className: traefik
   tlsSecretName: bafgo-tls
   clusterIssuer: letsencrypt-prod
-  pathPrefix: /schedule
-  stripPrefix: /schedule
+  pathPrefix: /leaveat
+  stripPrefix: /leaveat
 
 postgres:
   enabled: true

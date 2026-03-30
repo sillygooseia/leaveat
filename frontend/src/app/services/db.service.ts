@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { IdbDatabase } from '@bafgo/core/browser/idb';
+import { IdbDatabase } from '@epheme/core/browser/idb';
 import { Schedule, Employee } from '../models';
 import { ViewerAccess } from './local-storage.service';
 

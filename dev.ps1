@@ -19,16 +19,20 @@ param(
 
 $Root = $PSScriptRoot
 
-# ── Ensure NPM_TOKEN is set (needed for npm install of @bafgo scoped packages) ─
+# ── Ensure NPM_TOKEN is set (needed for npm install of @epheme scoped packages) ─
 if (-not $env:NPM_TOKEN) {
     try {
+        $secretsPath = Join-Path $Root "..\secrets\npm-registry.json"
+        $j = Get-Content $secretsPath | ConvertFrom-Json
+        $a = $j.users | Where-Object username -eq 'admin'
+        $body = @{ name = 'admin'; password = $a.password; email = 'admin@sillygooseia.com'; type = 'user' } | ConvertTo-Json -Compress
         $r = Invoke-RestMethod -Uri "https://npm.sillygooseia.com/-/user/org.couchdb.user:admin" `
-            -Method Put -ContentType "application/json" `
-            -Body '{"name":"admin","password":"sillygooseia-Ddsd@2020!"}' -ErrorAction Stop
+            -Method Put -ContentType "application/json" -Body $body -ErrorAction Stop
         $env:NPM_TOKEN = $r.token
+        npm config set "//npm.sillygooseia.com/:_authToken" $r.token
         Write-Host "  npm registry auth OK" -ForegroundColor DarkGray
     } catch {
-        Write-Host '  [warn] Could not get NPM_TOKEN - npm install of @bafgo packages may fail' -ForegroundColor Yellow
+        Write-Host '  [warn] Could not get NPM_TOKEN - npm install of @epheme packages may fail' -ForegroundColor Yellow
     }
 }
 

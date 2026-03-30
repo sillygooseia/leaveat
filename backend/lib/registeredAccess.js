@@ -13,7 +13,7 @@
 
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { makeFeatureLicenseMiddleware } = require('@bafgo/core/licenseMiddleware');
+const { makeFeatureLicenseMiddleware } = require('@epheme/core/licenseMiddleware');
 
 const router = express.Router();
 

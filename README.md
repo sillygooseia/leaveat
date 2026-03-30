@@ -3,13 +3,13 @@
 Employee scheduling and leave management — built on the [BafGo platform](https://github.com/bafgo/platform).
 
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](./package.json)
-[![Built with @bafgo/core](https://img.shields.io/badge/built%20with-%40bafgo%2Fcore-green)](https://github.com/bafgo/platform/tree/master/packages/core)
+[![Built with @epheme/core](https://img.shields.io/badge/built%20with-%40bafgo%2Fcore-green)](https://github.com/bafgo/platform/tree/master/packages/core)
 
 ---
 
 ## What it is
 
-LeaveAt lets teams manage employee schedules, shift coverage, and leave requests with no accounts required. Device identity (via `@bafgo/core`) handles authentication — staff access the tool directly on their device without sign-up.
+LeaveAt lets teams manage employee schedules, shift coverage, and leave requests with no accounts required. Device identity (via `@epheme/core`) handles authentication — staff access the tool directly on their device without sign-up.
 
 **Key properties:**
 - No employee accounts or passwords
@@ -103,4 +103,4 @@ Kubernetes manifests and a Helm chart are in `infra/`. See the provisioning scri
 
 [AGPL-3.0-only](./package.json) — SillyGooseIA Corp
 
-Built on [`@bafgo/core`](https://github.com/bafgo/platform/tree/master/packages/core) (MIT).
+Built on [`@epheme/core`](https://github.com/bafgo/platform/tree/master/packages/core) (MIT).

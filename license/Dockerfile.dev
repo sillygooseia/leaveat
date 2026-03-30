@@ -1,11 +1,14 @@
 FROM node:20-alpine
 
-COPY --from=bafgo_core . /usr/packages/core/
+ARG NPM_TOKEN
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install --install-links
+RUN echo "@epheme:registry=https://npm.sillygooseia.com" >> .npmrc && \
+    echo "//npm.sillygooseia.com/:_authToken=${NPM_TOKEN}" >> .npmrc && \
+    npm install && \
+    rm -f .npmrc
 
 COPY . ./
 

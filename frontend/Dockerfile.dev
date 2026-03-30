@@ -1,12 +1,14 @@
 FROM node:20-alpine
 
+ARG NPM_TOKEN
+
 WORKDIR /usr/src/app
 
 # Install dependencies — source is bind-mounted at runtime by docker-compose.
 # node_modules land in the named volume (leaveat_frontend_modules) so the
 # bind-mounted source doesn't clobber them.
-COPY package*.json ./
-RUN npm install
+COPY package*.json .npmrc ./
+RUN NPM_TOKEN=$NPM_TOKEN npm install
 
-EXPOSE 4200
-# docker-compose overrides CMD with: npm start
+EXPOSE 4201
+# docker-compose overrides CMD with: npm run start:docker

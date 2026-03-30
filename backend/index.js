@@ -6,8 +6,8 @@ const Redis = require('ioredis');
 const { Pool } = require('pg');
 const { router: registeredAccessRouter, initTables: initRegisteredAccessTables } = require('./lib/registeredAccess');
 const { sendMail, isEmailEnabled } = require('./lib/mailer');
-const { buildIpRateLimiter } = require('@bafgo/core/rateLimiter');
-const { makeFeatureLicenseMiddleware, makeLicensePublicKeyHandler } = require('@bafgo/core/licenseMiddleware');
+const { buildIpRateLimiter } = require('@epheme/core/rateLimiter');
+const { makeFeatureLicenseMiddleware, makeLicensePublicKeyHandler } = require('@epheme/core/licenseMiddleware');
 
 const app = express();
 app.use(cors());

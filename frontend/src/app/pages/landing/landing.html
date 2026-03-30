@@ -14,7 +14,7 @@
         </div>
       </div>
       <p class="promo-hero-banner__count">
-        <strong>{{ promoRemaining() }}</strong> of {{ promoTotal() }} remaining
+        <strong>{{ promoRemaining() ?? '...' }}</strong> of {{ promoTotal() }} remaining
       </p>
       <div class="promo-hero-banner__actions">
         <a href="#promo-section" class="promo-hero-banner__cta">Claim My Free License</a>

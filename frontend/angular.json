@@ -39,8 +39,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json",
-            "servePath": "/schedule/"
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "development": {

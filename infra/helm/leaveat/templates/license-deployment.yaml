@@ -23,7 +23,7 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
-            - name: BAFGO_LICENSE_PRODUCT
+            - name: EPHEME_LICENSE_PRODUCT
               value: "leaveat"
             - name: PORT
               value: "{{ .Values.license.port }}"

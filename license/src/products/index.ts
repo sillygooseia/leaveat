@@ -6,10 +6,10 @@ const PRODUCT_POLICIES: Record<string, LicenseProductPolicy> = {
 };
 
 export function getLicenseProductPolicy(): LicenseProductPolicy {
-  const slug = (process.env.BAFGO_LICENSE_PRODUCT || 'leaveat').trim().toLowerCase();
+  const slug = (process.env.EPHEME_LICENSE_PRODUCT || 'leaveat').trim().toLowerCase();
   const policy = PRODUCT_POLICIES[slug];
   if (!policy) {
-    throw new Error(`Unknown BAFGO_LICENSE_PRODUCT: ${slug}`);
+    throw new Error(`Unknown EPHEME_LICENSE_PRODUCT: ${slug}`);
   }
   return policy;
 }

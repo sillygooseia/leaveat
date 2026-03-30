@@ -73,8 +73,8 @@ export class LandingComponent implements OnInit {
       );
       this.promoRemaining.set(status.remaining);
       this.promoTotal.set(status.total);
-    } catch {
-      // Non-critical — silently ignore if license service is unavailable
+    } catch (err) {
+      console.error('[promo] failed to load promo status', err);
     }
   }
 

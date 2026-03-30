@@ -10,7 +10,7 @@ import {
 } from '../db';
 import { sendMail, isEmailEnabled } from '../mailer';
 
-const { clientIp, hashIp } = require('@bafgo/core/rateLimiter') as {
+const { clientIp, hashIp } = require('@epheme/core/rateLimiter') as {
   clientIp: (req: Request) => string;
   hashIp: (ip: string) => string;
 };

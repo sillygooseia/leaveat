@@ -1,12 +1,12 @@
 ﻿import { Injectable, signal, computed } from '@angular/core';
-import { BafgoDeviceController } from '@bafgo/core/browser';
-import type { BafgoDeviceCredential } from '@bafgo/core/browser';
+import { EphemeDeviceController } from '@epheme/core/browser';
+import type { EphemeDeviceCredential } from '@epheme/core/browser';
 
-export type { BafgoDeviceCredential as DeviceCredential };
+export type { EphemeDeviceCredential as DeviceCredential };
 
 @Injectable({ providedIn: 'root' })
 export class DeviceService {
-  private readonly _core = new BafgoDeviceController();
+  private readonly _core = new EphemeDeviceController();
   private readonly _rev = signal(0);
   private _bump() { this._rev.update(n => n + 1); }
 

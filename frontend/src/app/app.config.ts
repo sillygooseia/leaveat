@@ -7,7 +7,7 @@ import { routes } from './app.routes';
 import { apiBasePathInterceptor } from './api-base-path.interceptor';
 import { DbService } from './services/db.service';
 import { DeviceService } from './services/device.service';
-import { createBafgoDeviceDbBootstrap } from '@bafgo/core/browser';
+import { createEphemeDeviceDbBootstrap } from '@epheme/core/browser';
 
 console.log('🟢 LEAVEAT APP CONFIG LOADED - window.location:', window.location.href);
 
@@ -17,13 +17,13 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([apiBasePathInterceptor])),
     provideAnimationsAsync(),
     provideRouter(routes),
-    { provide: APP_BASE_HREF, useValue: '/schedule/' },
+    { provide: APP_BASE_HREF, useValue: '/' },
     {
       provide: APP_INITIALIZER,
       useFactory: () => {
         const db = inject(DbService);
         const device = inject(DeviceService);
-        return createBafgoDeviceDbBootstrap(device, db);
+        return createEphemeDeviceDbBootstrap(device, db);
       },
       multi: true,
     },

@@ -52,7 +52,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "leaveat.fullname" $ }}-license
+                name: {{ include "leaveat.licenseName" $ }}
                 port:
                   number: {{ $.Values.license.port }}
           - path: /api
@@ -95,11 +95,18 @@ spec:
     - host: {{ $suiteIngress.host }}
       http:
         paths:
+          - path: /api/license
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "leaveat.licenseName" . }}
+                port:
+                  number: {{ .Values.license.port }}
           - path: {{ $suiteIngress.pathPrefix }}/api/license
             pathType: Prefix
             backend:
               service:
-                name: {{ include "leaveat.fullname" . }}-license
+                name: {{ include "leaveat.licenseName" . }}
                 port:
                   number: {{ .Values.license.port }}
           - path: {{ $suiteIngress.pathPrefix }}/api
@@ -140,6 +147,6 @@ metadata:
 spec:
   redirectRegex:
     regex: {{ default "^https?://(?:www\\.)?leaveat\\.com/?(.*)" .Values.ingress.redirectToSuite.regex | quote }}
-    replacement: {{ default "https://bafgo.com/schedule/$1" .Values.ingress.redirectToSuite.replacement | quote }}
+    replacement: {{ default "https://bafgo.com/leaveat-transition" .Values.ingress.redirectToSuite.replacement | quote }}
     permanent: {{ default true .Values.ingress.redirectToSuite.permanent }}
 {{- end }}

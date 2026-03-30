@@ -1,7 +1,7 @@
-﻿import { Injectable } from '@angular/core';
-import { BafgoHubSync } from '@bafgo/core/browser';
+import { Injectable } from '@angular/core';
+import { EphemeHubSync } from '@epheme/core/browser';
 
-export type { HubSyncResult } from '@bafgo/core/browser';
+export type { HubSyncResult } from '@epheme/core/browser';
 
 @Injectable({ providedIn: 'root' })
-export class HubSyncService extends BafgoHubSync {}
+export class HubSyncService extends EphemeHubSync {}

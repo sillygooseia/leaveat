@@ -1,2 +1,2 @@
 'use strict';
-module.exports = require('@bafgo/core/mailer');
+module.exports = require('@epheme/core/mailer');

@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-const { hashIp } = require('@bafgo/core/rateLimiter') as {
+const { hashIp } = require('@epheme/core/rateLimiter') as {
   hashIp: (ip: string) => string;
 };
 

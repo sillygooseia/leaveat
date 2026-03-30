@@ -17,7 +17,7 @@ spec:
                 operator: In
                 values:
                   - {{ include "leaveat.name" . }}-backend
-                  - {{ include "leaveat.name" . }}-license
+                  - {{ include "leaveat.licenseName" . }}
                   - {{ include "leaveat.name" . }}-redis-backup
       ports:
         - protocol: TCP
