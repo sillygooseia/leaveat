@@ -85,7 +85,7 @@ ingress:
   tlsSecretName: leaveat-tls
   clusterIssuer: letsencrypt-prod
   redirectToSuite:
-    enabled: true
+    enabled: false
     regex: "^https?://(?:www\\.)?leaveat\\.com/?.*"
     replacement: "https://bafgo.com/leaveat-transition"
     permanent: true

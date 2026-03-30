@@ -3,8 +3,9 @@ FROM node:20-alpine AS build
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-RUN npm install
+ARG NPM_TOKEN
+COPY package*.json .npmrc ./
+RUN NPM_TOKEN=$NPM_TOKEN npm install
 
 COPY . .
 RUN npm run build -- --configuration production
