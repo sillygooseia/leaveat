@@ -4,6 +4,7 @@ import cors from 'cors';
 import { initSchema } from './db';
 import { getKeyPair } from './keys';
 import { LICENSE_ROUTE_PREFIXES, licenseLogPrefix } from './config';
+const { createLogger, requestLogger: requestLogger } = require('@epheme/core/logger');
 
 import publicKeyRouter from './routes/public-key';
 import checkoutRouter from './routes/checkout';
@@ -16,6 +17,7 @@ import promoRouter from './routes/promo';
 const app = express();
 const PORT = process.env.PORT || 3001;
 const IS_PROD = process.env.NODE_ENV === 'production';
+const log = createLogger({ service: 'leaveat-license' });
 
 // Trust reverse proxy (nginx/k8s) for real client IP in X-Forwarded-For
 // Only enable when running behind a trusted proxy — prevents IP spoofing.
@@ -33,6 +35,7 @@ app.use(
 // ── CORS ─────────────────────────────────────────────────────────────────────
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:4201').split(',').map(o => o.trim());
 app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
+app.use(requestLogger(log));
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 for (const prefix of LICENSE_ROUTE_PREFIXES) {
@@ -51,7 +54,7 @@ if (!IS_PROD) {
   for (const prefix of LICENSE_ROUTE_PREFIXES) {
     app.use(prefix, devRouter);
   }
-  console.log(`${licenseLogPrefix} DEV mode: /dev/issue-token endpoint is active`);
+  log.info(`${licenseLogPrefix} DEV mode: /dev/issue-token endpoint is active`);
 }
 
 // ── Health check ──────────────────────────────────────────────────────────────
@@ -73,18 +76,18 @@ app.get('/health', (_req: Request, res: Response) => {
         if (IS_PROD) {
           throw err;
         }
-        console.warn('[license] DATABASE_URL is set but Postgres is unavailable - continuing without DB-backed features');
-        console.warn('[license] Passkey, restore, revocation, and backup features will be unavailable in this dev session');
+        log.warn('[license] DATABASE_URL is set but Postgres is unavailable - continuing without DB-backed features');
+        log.warn('[license] Passkey, restore, revocation, and backup features will be unavailable in this dev session');
       }
     } else {
-      console.warn(`${licenseLogPrefix} No DATABASE_URL — skipping schema init (passkey + revocation unavailable)`);
+      log.warn(`${licenseLogPrefix} No DATABASE_URL — skipping schema init (passkey + revocation unavailable)`);
     }
 
     app.listen(PORT, () => {
-      console.log(`${licenseLogPrefix} Listening on port ${PORT} (${IS_PROD ? 'production' : 'development'})`);
+      log.info({ port: PORT, env: IS_PROD ? 'production' : 'development' }, `${licenseLogPrefix} Listening`);
     });
   } catch (err) {
-    console.error(`${licenseLogPrefix} Fatal startup error:`, err);
+    log.error({ err }, `${licenseLogPrefix} Fatal startup error`);
     process.exit(1);
   }
 })();

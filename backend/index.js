@@ -8,10 +8,13 @@ const { router: registeredAccessRouter, initTables: initRegisteredAccessTables }
 const { sendMail, isEmailEnabled } = require('./lib/mailer');
 const { buildIpRateLimiter } = require('@epheme/core/rateLimiter');
 const { makeFeatureLicenseMiddleware, makeLicensePublicKeyHandler } = require('@epheme/core/licenseMiddleware');
+const { createLogger, requestLogger: _requestLogger } = require('@epheme/core/logger');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '2mb' }));
+const log = createLogger({ service: 'leaveat-backend' });
+app.use(_requestLogger(log));
 
 const PORT = process.env.PORT || 3000;
 const REDIS_URL = process.env.REDIS_URL || null;
@@ -27,13 +30,13 @@ let store = new Map(); // In-memory fallback
 if (REDIS_URL) {
   redis = new Redis(REDIS_URL, { lazyConnect: false, enableOfflineQueue: true });
   redis.on('error', (err) => {
-    console.error('[leaveat] Redis error:', err && err.message ? err.message : err);
+    log.error({ err }, 'Redis error');
   });
   redis.on('connect', () => {
-    console.log('[leaveat] Redis connected for share link persistence');
+    log.info('Redis connected for share link persistence');
   });
 } else {
-  console.warn('[leaveat] No REDIS_URL set — using in-memory storage (share links lost on restart)');
+  log.warn('No REDIS_URL set — using in-memory storage (share links lost on restart)');
 }
 
 // Rate limiters (silently no-op when Redis is not available)
@@ -99,7 +102,7 @@ const storage = {
         }
       }
       if (deletedCount > 0) {
-        console.log(`[leaveat] Cleaned up ${deletedCount} expired share link(s)`);
+        log.info({ count: deletedCount }, 'expired share links cleaned');
       }
     }
   }
@@ -121,9 +124,9 @@ app.post('/api/share', shareLimiter, async (req, res) => {
     await storage.set(id, data, ttlSeconds);
     const url = `/s/${id}`;
     res.json({ id, url, expiresAt });
-    console.log(`[leaveat] Created share link ${id} (TTL: ${ttlSeconds === 0 ? 'permanent' : ttlSeconds + 's'})`);
+    log.info({ ttlSeconds: ttlSeconds === 0 ? 'permanent' : ttlSeconds }, 'share link created');
   } catch (err) {
-    console.error('[leaveat] Error creating share link:', err);
+    log.error({ err }, 'error creating share link');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -137,7 +140,7 @@ app.get('/api/share/:id', async (req, res) => {
     }
     res.json({ id, data: entry.data, expiresAt: entry.expiresAt });
   } catch (err) {
-    console.error('[leaveat] Error fetching share link:', err);
+    log.error({ err }, 'error fetching share link');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -152,7 +155,7 @@ app.get('/s/:id', async (req, res) => {
     }
     res.json({ id, data: entry.data, expiresAt: entry.expiresAt });
   } catch (err) {
-    console.error('[leaveat] Error fetching share link:', err);
+    log.error({ err }, 'error fetching share link (/s/:id)');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -164,11 +167,11 @@ let pgPool = null;
 if (DATABASE_URL) {
   pgPool = new Pool({ connectionString: DATABASE_URL });
   pgPool.connect()
-    .then(client => { console.log('[leaveat] Postgres connected'); client.release(); })
+    .then(client => { log.info('Postgres connected'); client.release(); })
     .then(() => initRegisteredAccessTables(pgPool, LICENSE_PUBLIC_KEY_PEM))
-    .catch(err => console.error('[leaveat] Postgres init error:', err.message));
+    .catch(err => log.error({ err }, 'Postgres init error'));
 } else {
-  console.warn('[leaveat] No DATABASE_URL set — registered access will be unavailable');
+  log.warn('No DATABASE_URL set — registered access will be unavailable');
 }
 
 // ─── License public key ──────────────────────────────────────────────────────
@@ -196,7 +199,7 @@ app.post('/api/support', supportLimiter, async (req, res) => {
   if (name.length > 200 || email.length > 254 || message.length > 5000)
     return res.status(400).json({ error: 'Input too long' });
   if (!isEmailEnabled()) {
-    console.warn('[leaveat] Support request received but email not configured');
+    log.warn('support request received but email not configured');
     return res.status(503).json({ error: 'Support contact is not currently available' });
   }
   try {
@@ -207,9 +210,9 @@ app.post('/api/support', supportLimiter, async (req, res) => {
       html: `<p><strong>Name:</strong> ${escapeHtml(name.trim())}</p><p><strong>Email:</strong> ${escapeHtml(email.trim())}</p><hr><p>${escapeHtml(message.trim()).replace(/\n/g, '<br>')}</p>`,
     });
     res.json({ ok: true });
-    console.log(`[leaveat] Support request from ${email.trim()}`);
+    log.info('support request sent');
   } catch (err) {
-    console.error('[leaveat] Failed to send support email:', err.message);
+    log.error({ err }, 'failed to send support email');
     res.status(500).json({ error: 'Failed to send message. Please try again.' });
   }
 });
@@ -226,5 +229,5 @@ app.get('/api/suite', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`LeaveAt backend listening on port ${PORT}`);
+  log.info({ port: PORT }, 'backend listening');
 });
