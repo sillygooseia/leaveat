@@ -1,74 +1,84 @@
 <div class="premium-page">
 
-  <a mat-button routerLink="/" class="back-link">
+  <a mat-button routerLink="/schedule" class="back-link">
     <mat-icon>arrow_back</mat-icon> Back to Schedule
   </a>
 
+  <!-- Hero -->
   <div class="hero">
-    <mat-icon class="hero-icon">workspace_premium</mat-icon>
-    <h1>LeaveAt Premium</h1>
-    <p class="hero-sub">All the scheduling power you need — still no accounts.</p>
+    <h1>LeaveAt is free.<br><span class="hero-ai">Premium adds AI.</span></h1>
+    <p class="hero-sub">
+      Every scheduling feature is free forever — no accounts, no limits, no lock-in.<br>
+      Premium unlocks one thing: AI-assisted schedule generation.
+    </p>
   </div>
 
-  @if (!isPremium()) {
-    <!-- Coming soon card -->
-    <div class="pricing-card">
-      <div class="coming-soon-badge">Coming Soon</div>
-      <p class="coming-soon-text">
-        Paid licenses are on the way — for now, we're running a free early-access trial.
+  <!-- Always Free -->
+  <div class="free-section">
+    <div class="free-section-header">
+      <span class="free-badge">Always Free</span>
+      <p class="free-section-sub">No account. No limits. No paywalls. Features included for everyone:</p>
+    </div>
+    <div class="free-grid">
+      @for (f of freeFeatures; track f.label) {
+        <div class="free-feature">
+          <mat-icon class="free-icon">check_circle</mat-icon>
+          <span>{{ f.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- AI Premium -->
+  <div class="ai-premium-section">
+    <div class="ai-premium-header">
+      <span class="ai-badge">✦ Premium AI</span>
+      <h2 class="ai-title">Let AI build the schedule.</h2>
+      <p class="ai-desc">
+        Describe your team in plain English. LeaveAt proposes a complete weekly schedule —
+        ready to adjust, approve, and share.
       </p>
-      <a mat-raised-button color="primary" class="cta-btn" href="#promo-section" routerLink="/home">
-        Claim a Free License
-      </a>
-      <button mat-button class="activate-link" (click)="openActivation()">
-        Already have a license? Activate it →
-      </button>
     </div>
-  } @else {
-    <app-premium-status></app-premium-status>
-  }
 
-  <!-- Feature comparison table -->
-  <div class="feature-table">
-    <div class="feature-header">
-      <div class="feature-label"></div>
-      <div class="plan-col free">Free</div>
-      <div class="plan-col premium">
-        <mat-icon style="font-size:16px;vertical-align:middle;color:#f9a825">workspace_premium</mat-icon>
-        Premium
+    <div class="ai-features">
+      @for (f of aiFeatures; track f.label) {
+        <div class="ai-feature-row">
+          <mat-icon class="ai-feature-icon">{{ f.icon }}</mat-icon>
+          <div>
+            <strong>{{ f.label }}</strong>
+            <p>{{ f.desc }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="ai-example">
+      <div class="ai-example-label">Tell LeaveAt things like:</div>
+      <div class="ai-note-list">
+        <div class="ai-note">"Hannah can only work mornings and never on Sundays."</div>
+        <div class="ai-note">"We need 2 people in the kitchen every night."</div>
+        <div class="ai-note">"Sarah needs 20–25 hours per week."</div>
+        <div class="ai-note">"Tom can close but not open."</div>
       </div>
     </div>
 
-    @for (f of features; track f.label) {
-      <div class="feature-row">
-        <div class="feature-label">
-          @if (f.label === 'Number of schedules') {
-            <span>Number of schedules</span>
-          } @else {
-            {{ f.label }}
-          }
-        </div>
-        <div class="plan-col free">
-          @if (f.label === 'Number of schedules') {
-            <span class="muted">1</span>
-          } @else if (f.free) {
-            <mat-icon class="check">check_circle</mat-icon>
-          } @else {
-            <mat-icon class="cross">remove</mat-icon>
-          }
-        </div>
-        <div class="plan-col premium">
-          @if (f.label === 'Number of schedules') {
-            <span class="unlimited">Unlimited</span>
-          } @else {
-            <mat-icon class="check">check_circle</mat-icon>
-          }
-        </div>
+    @if (!isPremium()) {
+      <div class="ai-cta-block">
+        <div class="coming-soon-badge">Coming Soon</div>
+        <p class="coming-soon-text">
+          AI scheduling is in development. Activate a free early-access license now while it's available.
+        </p>
+        <button mat-raised-button color="primary" class="cta-btn" (click)="openActivation()">
+          Activate Free License →
+        </button>
       </div>
+    } @else {
+      <app-premium-status></app-premium-status>
     }
   </div>
 
   <p class="footer-note">
     No accounts. No passwords. License stored locally on your device.
   </p>
+
 </div>

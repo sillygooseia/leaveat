@@ -33,14 +33,14 @@
       <mat-icon>no_accounts</mat-icon>
       <h2>No Schedule Found</h2>
       <p>This device hasn't been registered for a schedule. Request an invite link from your admin.</p>
-      <a mat-stroked-button routerLink="/home">Go Home</a>
+      <a mat-stroked-button routerLink="/schedule">Go Home</a>
     </div>
   } @else if (error() === 'revoked') {
     <div class="error-state">
       <mat-icon>block</mat-icon>
       <h2>Access Revoked</h2>
       <p>Your access to this schedule has been removed. Contact your admin for a new invite.</p>
-      <a mat-stroked-button routerLink="/home">Go Home</a>
+      <a mat-stroked-button routerLink="/schedule">Go Home</a>
     </div>
   } @else if (error() === 'failed') {
     <div class="error-state">

@@ -17,6 +17,7 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # Angular build output: dist/leaveat/browser
 COPY --from=build /usr/src/app/dist/leaveat/browser /usr/share/nginx/html
+COPY --from=build /usr/src/app/marketing /usr/share/nginx/html/marketing
 
 # Custom nginx config: serves index.html for all routes (Angular HTML5 routing)
 COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { LandingComponent } from './pages/landing/landing';
 import { ScheduleComponent } from './pages/schedule/schedule';
 import { PublicViewComponent } from './pages/public-view/public-view';
 import { ActivateComponent } from './pages/activate/activate';
@@ -15,11 +14,12 @@ import { PrivacyComponent } from './pages/privacy/privacy';
 export const routes: Routes = [
   {
     path: '',
-    component: ScheduleComponent
+    redirectTo: 'schedule',
+    pathMatch: 'full'
   },
   {
-    path: 'home',
-    component: LandingComponent
+    path: 'schedule',
+    component: ScheduleComponent
   },
   {
     path: 's/:id',
@@ -67,6 +67,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'schedule'
   }
 ];

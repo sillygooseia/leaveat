@@ -12,10 +12,14 @@ import { LicenseService } from '../../services/license.service';
 import { PremiumActivationComponent } from '../../components/premium-activation/premium-activation';
 import { PremiumStatusComponent } from '../../components/premium-status/premium-status';
 
-interface PlanFeature {
+interface FreeFeature {
   label: string;
-  free: boolean;
-  premium: boolean;
+}
+
+interface AiFeature {
+  icon: string;
+  label: string;
+  desc: string;
 }
 
 @Component({
@@ -44,18 +48,41 @@ export class PremiumComponent {
 
   checkoutLoading = signal(false);
 
-  features: PlanFeature[] = [
-    { label: 'Weekly schedule builder', free: true, premium: true },
-    { label: 'Employee management', free: true, premium: true },
-    { label: 'Share links (up to 7 days)', free: true, premium: true },
-    { label: 'Number of schedules', free: false, premium: true }, // special row
-    { label: 'Share links up to 30 days', free: false, premium: true },
-    { label: 'Permanent share links', free: false, premium: true },
-    { label: 'Cloud backup (encrypted)', free: false, premium: true },
-    { label: 'Schedule templates', free: false, premium: true },
-    { label: 'Duplicate schedule', free: false, premium: true },
-    { label: 'Multi-week history', free: false, premium: true },
-    { label: 'Registered device access', free: false, premium: true },
+  freeFeatures: FreeFeature[] = [
+    { label: 'Weekly schedule builder' },
+    { label: 'Personal, Family & Work modes' },
+    { label: 'Unlimited schedules' },
+    { label: 'Unlimited employees' },
+    { label: 'Share links (7-day, 30-day, permanent)' },
+    { label: 'Print & export' },
+    { label: 'Registered device access for team members' },
+    { label: 'Encrypted cloud backup & restore' },
+    { label: 'Multi-week schedule history' },
+    { label: 'No account or identity required' },
+    { label: 'Local-first — your data stays on your device' },
+  ];
+
+  aiFeatures: AiFeature[] = [
+    {
+      icon: 'auto_awesome',
+      label: 'AI schedule generation',
+      desc: 'Describe availability, restrictions, and preferences in plain text — AI builds a complete weekly schedule.',
+    },
+    {
+      icon: 'tune',
+      label: 'Adjust & regenerate',
+      desc: 'Accept the proposed schedule, tweak it manually, or regenerate with updated constraints in seconds.',
+    },
+    {
+      icon: 'warning_amber',
+      label: 'Conflict detection',
+      desc: 'AI flags understaffed shifts, scheduling conflicts, and constraint violations automatically.',
+    },
+    {
+      icon: 'meeting_room',
+      label: 'Room & role coverage',
+      desc: 'Define required headcount, stations, and roles per shift — AI ensures your business rules are met.',
+    },
   ];
 
   async startCheckout(): Promise<void> {

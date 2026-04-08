@@ -33,7 +33,7 @@
     <nav class="nav">
       <a routerLink="/how-it-works" class="nav-link nav-link-desktop">How It Works</a>
       <a routerLink="/premium" class="nav-link nav-link-premium nav-link-desktop">✦ Premium</a>
-      <button mat-raised-button color="primary" routerLink="/" class="cta-button">
+      <button mat-raised-button color="primary" routerLink="/schedule" class="cta-button">
         Start Scheduling
       </button>
       <button mat-icon-button [matMenuTriggerFor]="headerMenu" xPosition="before" class="hamburger-btn" aria-label="Open menu">
@@ -76,7 +76,7 @@
           and share your weekly schedule with
           a simple link.
         </p>
-        <button mat-raised-button color="primary" routerLink="/" class="hero-cta">
+        <button mat-raised-button color="primary" routerLink="/schedule" class="hero-cta">
           Get Started Now
         </button>
         <p class="hero-tagline">Simple, local, and temporary – it's just a tool.</p>
@@ -211,7 +211,7 @@
               <span>Activities appear inline on the weekly calendar</span>
             </li>
           </ul>
-          <button mat-raised-button color="primary" routerLink="/" class="activities-callout-cta">
+          <button mat-raised-button color="primary" routerLink="/schedule" class="activities-callout-cta">
             Try It Free
           </button>
         </div>
@@ -347,7 +347,7 @@
               <span>Print a clean work chart or staffing report in one click</span>
             </li>
           </ul>
-          <button mat-raised-button color="primary" routerLink="/" class="work-callout-cta">
+          <button mat-raised-button color="primary" routerLink="/schedule" class="work-callout-cta">
             Build a Schedule
           </button>
         </div>
@@ -432,7 +432,7 @@
           <span class="promo-state__icon">🎉</span>
           <h2 class="promo-state__title">Premium Activated!</h2>
           <p class="promo-state__sub">Your free 1-year LeaveAt Premium license is now active on this device.</p>
-          <a mat-raised-button routerLink="/" class="promo-go-btn">Go to Schedule</a>
+          <a mat-raised-button routerLink="/schedule" class="promo-go-btn">Go to Schedule</a>
         </div>
 
       } @else if (promoRemaining() === 0) {
