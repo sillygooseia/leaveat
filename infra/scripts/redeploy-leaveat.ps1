@@ -141,10 +141,8 @@ if ($License) {
 if ($Frontend) {
     $frontendImage = "$Registry/leaveat/frontend:$Tag"
 
-    $npmrcPath = Join-Path $env:USERPROFILE ".npmrc"
-    $npmToken = (Get-Content $npmrcPath | Select-String '//npm\.sillygooseia\.com/:_authToken=(.+)').Matches[0].Groups[1].Value.Trim('"')
     Invoke-Step "Build frontend image ($frontendImage)" {
-        docker build --build-arg NPM_TOKEN=$npmToken -t $frontendImage $FrontendPath
+        docker build -t $frontendImage $FrontendPath
     }
 
     Invoke-Step "Push frontend image" {
