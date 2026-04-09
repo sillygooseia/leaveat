@@ -50,16 +50,13 @@ export class ShareDialogComponent {
   expiresAt = signal<number | null>(null);
   selectedTtl = signal(604800); // 7 days default
 
-  readonly isPremium = this.licenseService.isPremium;
-  readonly hasPremiumFeature = (f: Parameters<typeof this.licenseService.hasFeature>[0]) =>
-    this.licenseService.hasFeature(f);
   readonly PERMANENT_TTL = PERMANENT_LINK_TTL;
 
   ttlOptions = [
-    { label: '1 Day', value: 86400, premium: false },
-    { label: '7 Days (Recommended)', value: 604800, premium: false },
-    { label: '30 Days', value: 2592000, premium: true },
-    { label: 'Permanent', value: PERMANENT_LINK_TTL, premium: true },
+    { label: '1 Day', value: 86400 },
+    { label: '7 Days (Recommended)', value: 604800 },
+    { label: '30 Days', value: 2592000 },
+    { label: 'Permanent', value: PERMANENT_LINK_TTL },
   ];
 
   // ── Registered Access tab ───────────────────────────────────────────────

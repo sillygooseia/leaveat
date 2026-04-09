@@ -1,54 +1,90 @@
-<h2 mat-dialog-title>{{ isEditMode ? 'Edit ' + personLabel : 'Add ' + personLabel }}</h2>
+<h2 mat-dialog-title class="dialog-title">
+  @if (isEditMode) {
+    <div class="title-avatar" [style.background]="color()">
+      {{ name() ? name()[0].toUpperCase() : '?' }}
+    </div>
+  } @else {
+    <mat-icon class="title-add-icon">person_add</mat-icon>
+  }
+  <span>{{ isEditMode ? 'Edit ' + personLabel : 'Add ' + personLabel }}</span>
+</h2>
 
-<mat-dialog-content>
-  <form>
-    <mat-form-field class="full-width">
+<mat-dialog-content class="dialog-content">
+
+  <!-- ── Identity ─────────────────────────────────────────────── -->
+  <div class="section">
+    <mat-form-field class="full-width" appearance="outline">
       <mat-label>Name</mat-label>
-      <input matInput [(ngModel)]="name" name="name" required placeholder="John Doe">
+      <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)"
+             name="name" required placeholder="e.g. Alex Chen" autocomplete="off">
       @if (!isNameUnique && name()) {
-        <mat-error>This name is already in use</mat-error>
+        <mat-error>Name already in use</mat-error>
       }
     </mat-form-field>
 
-    <mat-form-field class="full-width">
+    <mat-form-field class="full-width" appearance="outline">
       <mat-label>Role</mat-label>
-      <input matInput [(ngModel)]="role" name="role" required placeholder="Barista">
+      <input matInput [ngModel]="role()" (ngModelChange)="role.set($event)"
+             name="role" required
+             [placeholder]="data.mode === 'family' ? 'e.g. Parent, Child' : 'e.g. Barista, Manager'">
     </mat-form-field>
 
-    <mat-form-field class="full-width">
-      <mat-label>Max Hours/Week (optional)</mat-label>
-      <input matInput type="number" [(ngModel)]="maxWeeklyHours" name="maxWeeklyHours" 
-             placeholder="40" min="1" max="168">
-      <mat-hint>Leave empty for default 40 hours/week</mat-hint>
+    <mat-form-field class="full-width last-field" appearance="outline">
+      <mat-label>Max Hours / Week</mat-label>
+      <input matInput type="number"
+             [ngModel]="maxWeeklyHours()" (ngModelChange)="maxWeeklyHours.set(+$event || undefined)"
+             name="maxWeeklyHours" placeholder="40" min="1" max="168">
+      <mat-hint>Leave empty for no limit</mat-hint>
     </mat-form-field>
+  </div>
 
-    <mat-form-field class="full-width">
-      <mat-label>Color</mat-label>
-      <mat-select [(ngModel)]="color" name="color" required>
-        @for (c of colors; track c.hex) {
-          <mat-option [value]="c.hex">
-            <div class="color-option">
-              <div class="color-preview" [style.background-color]="c.hex"></div>
-              <span>{{ c.name }}</span>
-            </div>
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+  <mat-divider></mat-divider>
 
-    <div class="preview-section">
-      <p>Preview:</p>
-      <div class="employee-preview">
-        <div class="color-indicator" [style.background-color]="color()"></div>
-        <span>{{ name() || 'Employee Name' }} - {{ role() || 'Role' }}</span>
-      </div>
+  <!-- ── Colour ────────────────────────────────────────────────── -->
+  <div class="section">
+    <label class="section-label">Calendar colour</label>
+    <div class="swatch-grid">
+      @for (c of colors; track c.hex) {
+        <button type="button"
+                class="swatch"
+                [class.swatch--active]="color() === c.hex"
+                [style.background]="c.hex"
+                [matTooltip]="c.name"
+                (click)="color.set(c.hex)">
+          @if (color() === c.hex) {
+            <mat-icon class="swatch-check">check</mat-icon>
+          }
+        </button>
+      }
     </div>
-  </form>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- ── AI notes ──────────────────────────────────────────────── -->
+  <div class="section last-section">
+    <label class="section-label">
+      <mat-icon class="section-label-icon">auto_awesome</mat-icon>
+      AI availability notes
+    </label>
+    <p class="section-hint">
+      Describe availability, preferences, or constraints the AI should consider when building this person's schedule.
+    </p>
+    <mat-form-field class="full-width last-field" appearance="outline">
+      <textarea matInput rows="3"
+                [ngModel]="aiNote()" (ngModelChange)="aiNote.set($event)"
+                name="aiNote"
+                [placeholder]="data.mode === 'family' ? 'e.g. Football practice every Thursday evening...' : 'e.g. Not available Mondays, prefers morning shifts, max 5 hours/day...'">
+      </textarea>
+    </mat-form-field>
+  </div>
+
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="save()" [disabled]="!isValid || !isNameUnique">
-    {{ isEditMode ? 'Update' : 'Add' }}
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="!isValid || !isNameUnique">
+    <mat-icon>{{ isEditMode ? 'save' : 'person_add' }}</mat-icon>
+    {{ isEditMode ? 'Save' : 'Add ' + personLabel }}
   </button>
 </mat-dialog-actions>

@@ -1,0 +1,213 @@
+<!-- ── Gate: no premium ──────────────────────────────────────────────────────── -->
+@if (aiAccess() === 'not_premium') {
+  <div class="ai-gate">
+    <mat-icon class="ai-gate-icon">auto_awesome</mat-icon>
+    <h2 class="ai-gate-title">AI Scheduling</h2>
+    <p class="ai-gate-body">
+      Let AI build your weekly schedule from employee notes and business requirements.
+      Available with Premium.
+    </p>
+    <div class="ai-gate-actions">
+      <button mat-flat-button color="primary" routerLink="/premium" (click)="dismiss()">
+        <mat-icon>star</mat-icon>
+        Upgrade to Premium
+      </button>
+      <button mat-button (click)="dismiss()">Not now</button>
+    </div>
+  </div>
+}
+
+<!-- ── Gate: premium but feature not in this token ──────────────────────────── -->
+@if (aiAccess() === 'missing_from_plan') {
+  <div class="ai-gate">
+    <mat-icon class="ai-gate-icon">lock_reset</mat-icon>
+    <h2 class="ai-gate-title">License Update Required</h2>
+    <p class="ai-gate-body">
+      Your current license does not include AI Scheduling — it may have been issued before
+      this feature was added. Visit the Premium page to reissue or contact support.
+    </p>
+    <div class="ai-gate-actions">
+      <button mat-flat-button color="primary" routerLink="/premium" (click)="dismiss()">
+        <mat-icon>workspace_premium</mat-icon>
+        Manage License
+      </button>
+      <button mat-button (click)="dismiss()">Dismiss</button>
+    </div>
+  </div>
+}
+
+<!-- ── Notes phase ───────────────────────────────────────────────────────────── -->
+@if (aiAccess() === 'unlocked' && phase() === 'notes') {
+  <h2 mat-dialog-title class="ai-dialog-title">
+    <mat-icon class="ai-title-icon">auto_awesome</mat-icon>
+    AI Schedule Generator
+  </h2>
+
+  <mat-dialog-content class="ai-dialog-content">
+    <p class="ai-intro">
+      Add availability notes for each employee. The AI uses these to generate a schedule for
+      <strong>{{ weekStart }}</strong>.
+    </p>
+
+    <div class="employee-notes-list">
+      @for (emp of employees; track emp.id) {
+        <div class="employee-note-row">
+          <div class="emp-label">
+            <span class="emp-dot" [style.background]="emp.color"></span>
+            <span class="emp-name">{{ emp.name }}</span>
+          </div>
+          <mat-form-field appearance="outline" class="note-field">
+            <mat-label>Availability / notes</mat-label>
+            <textarea
+              matInput
+              rows="2"
+              [value]="employeeNotes[emp.id] ?? ''"
+              (input)="onNoteChange(emp.id, $any($event.target).value)"
+              placeholder="e.g. Not available Mon, prefers morning shifts..."
+            ></textarea>
+          </mat-form-field>
+        </div>
+      }
+    </div>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    @if (coverageAutoFilled) {
+      <div class="coverage-autofill-notice">
+        <mat-icon class="coverage-autofill-icon">rule</mat-icon>
+        <span>Coverage requirements pre-filled from your schedule settings. Edit as needed.</span>
+      </div>
+    }
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Business requirements</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        [(ngModel)]="businessNotes"
+        placeholder="e.g. Need 2 staff on weekdays, 1 on weekends, open 9–17..."
+      ></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Manager notes (optional)</mat-label>
+      <textarea
+        matInput
+        rows="2"
+        [(ngModel)]="managerNotes"
+        placeholder="e.g. Alex is on leave Mon–Tue, avoid back-to-back shifts..."
+      ></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="dismiss()">Cancel</button>
+    <button mat-flat-button color="primary" (click)="generate()" [disabled]="employees.length === 0">
+      <mat-icon>auto_awesome</mat-icon>
+      Generate Schedule
+    </button>
+  </mat-dialog-actions>
+}
+
+<!-- ── Generating phase ──────────────────────────────────────────────────────── -->
+@if (aiAccess() === 'unlocked' && phase() === 'generating') {
+  <div class="ai-loading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="ai-loading-label">Generating schedule&hellip;</p>
+    <p class="ai-loading-hint">This usually takes a few seconds.</p>
+  </div>
+}
+
+<!-- ── Review phase ──────────────────────────────────────────────────────────── -->
+@if (aiAccess() === 'unlocked' && phase() === 'review') {
+  @let result = aiResult();
+  <h2 mat-dialog-title class="ai-dialog-title">
+    <mat-icon class="ai-title-icon">check_circle</mat-icon>
+    Schedule Ready
+  </h2>
+
+  <mat-dialog-content class="ai-dialog-content">
+    @if (result) {
+      <p class="ai-summary">{{ result.summary }}</p>
+
+      @if (result.warnings.length > 0) {
+        <div class="ai-warnings">
+          @for (w of result.warnings; track $index) {
+            <div class="ai-warning-row">
+              <mat-icon class="warn-icon">warning_amber</mat-icon>
+              <span>{{ w }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <mat-divider class="section-divider"></mat-divider>
+
+      <p class="ai-shift-count">
+        {{ result.shifts.length }} shift{{ result.shifts.length === 1 ? '' : 's' }} generated.
+        Accept to apply them to the current week, or regenerate.
+      </p>
+
+      <div class="ai-preview">
+        @for (day of dayIndexes; track day) {
+          @let dayShifts = getShiftsForDay(result.shifts, day);
+          @if (dayShifts.length > 0) {
+            <div class="ai-preview-day">
+              <div class="ai-preview-day-header">
+                <span>{{ dayNames[day] }}</span>
+                <span class="ai-preview-day-count">{{ dayShifts.length }} shift{{ dayShifts.length === 1 ? '' : 's' }}</span>
+              </div>
+
+              @for (shift of dayShifts; track shift.id) {
+                <div class="ai-preview-shift">
+                  <div>
+                    <div class="ai-preview-employee">{{ getEmployeeName(shift.employeeId) }}</div>
+                    <div class="ai-preview-meta">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                  </div>
+                  <div class="ai-preview-right">
+                    <span class="ai-preview-role">{{ formatShiftMeta(shift) }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="dismiss()">Discard</button>
+    <button mat-stroked-button (click)="regenerate()">
+      <mat-icon>refresh</mat-icon>
+      Regenerate
+    </button>
+    <button mat-flat-button color="primary" (click)="acceptSchedule()">
+      <mat-icon>check</mat-icon>
+      Accept Schedule
+    </button>
+  </mat-dialog-actions>
+}
+
+<!-- ── Error phase ───────────────────────────────────────────────────────────── -->
+@if (aiAccess() === 'unlocked' && phase() === 'error') {
+  <h2 mat-dialog-title class="ai-dialog-title">
+    <mat-icon class="ai-title-icon error-icon">error_outline</mat-icon>
+    Generation Failed
+  </h2>
+
+  <mat-dialog-content class="ai-dialog-content">
+    <p class="ai-error-message">{{ errorMessage() }}</p>
+    @if (rateLimitResetsAt() > 0) {
+      <p class="ai-countdown">{{ rateLimitCountdown() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="dismiss()">Close</button>
+    <button mat-flat-button color="primary" (click)="regenerate()">
+      <mat-icon>refresh</mat-icon>
+      Try Again
+    </button>
+  </mat-dialog-actions>
+}

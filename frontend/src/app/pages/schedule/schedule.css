@@ -10,6 +10,17 @@
   gap: 0.5rem;
 }
 
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.view-toggle button.active-view,
+.compact-button.active-view {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .week-info {
   display: flex;
   flex-direction: column;
@@ -30,6 +41,19 @@
 .premium-toolbar-button {
   color: #ffd54f !important;
   font-weight: 600;
+}
+
+.premium-toolbar-button--active {
+  background: rgba(255, 213, 79, 0.15) !important;
+  border: 1px solid rgba(255, 213, 79, 0.4);
+  border-radius: 4px;
+}
+
+.ai-schedule-button {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
 }
 
 .today-button {

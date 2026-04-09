@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,16 +24,31 @@ export interface PrintDialogData {
   styleUrls: ['./print-dialog.css']
 })
 export class PrintDialogComponent {
+  private readonly dialogRef = inject<MatDialogRef<PrintDialogComponent>>(MatDialogRef, { optional: true });
   private readonly dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   private readonly shortDayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  constructor(
-    private dialogRef: MatDialogRef<PrintDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: PrintDialogData
-  ) {}
+  data!: PrintDialogData;
+
+  /** Emits void when the user dismisses the print panel (page mode only). */
+  @Output() closePanel = new EventEmitter<void>();
+
+  constructor() {
+    const dialogData = inject<PrintDialogData>(MAT_DIALOG_DATA, { optional: true });
+    if (dialogData) {
+      this.data = dialogData;
+    }
+  }
+
+  /** Called by the page wrapper via property binding: `[pageData]="..."`. */
+  @Input() set pageData(d: PrintDialogData) { this.data = d; }
 
   close(): void {
-    this.dialogRef.close();
+    if (this.dialogRef) {
+      this.dialogRef.close();
+    } else {
+      this.closePanel.emit();
+    }
   }
 
   get isFamily(): boolean {

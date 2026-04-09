@@ -70,7 +70,13 @@ export class PremiumStatusComponent {
   pinValue = signal('');
 
   openActivation(): void {
-    this.dialog.open(PremiumActivationComponent, { width: '480px' });
+    this.dialog.open(PremiumActivationComponent, {
+      position: { right: '0', top: '0' },
+      height: '100vh',
+      width: 'min(480px, 95vw)',
+      maxWidth: '95vw',
+      panelClass: 'side-sheet-panel',
+    });
   }
 
   deactivate(): void {

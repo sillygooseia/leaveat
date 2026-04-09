@@ -32,6 +32,8 @@ export interface RoomDefinition {
 export interface CoverageRequirements {
   enabled: boolean;
   mode: 'simple' | 'time-based' | 'room-ratio';
+  disabledDays?: number[];
+  hideClosedDays?: boolean;
 
   // Simple mode: single minimum applied to all days
   simpleMinStaff?: number;

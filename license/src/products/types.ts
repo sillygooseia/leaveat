@@ -8,10 +8,10 @@ export interface PromoPolicy {
 }
 
 export interface CheckoutPolicy {
-  provider: 'lemonsqueezy';
-  apiKey?: string;
-  storeId?: string;
-  variantId?: string;
+  provider: 'stripe';
+  secretKey?: string;
+  priceId?: string;
+  webhookSecret?: string;
 }
 
 export interface PasskeyPolicy {

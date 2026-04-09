@@ -1,6 +1,6 @@
 .schedule-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   padding: 1rem;
   min-height: 400px;
@@ -14,6 +14,29 @@
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   transition: box-shadow 0.15s, outline 0.15s;
+}
+
+.day-column.closed-day {
+  opacity: 0.85;
+}
+
+.day-column.closed-day .day-header {
+  opacity: 0.8;
+}
+
+.day-column.closed-day .day-content {
+  background: rgba(0,0,0,0.03);
+}
+
+.day-column.closed-day .day-header button {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.empty-day.closed-day {
+  background: rgba(244, 67, 54, 0.08);
+  border-color: rgba(244, 67, 54, 0.25);
+  color: rgba(244, 67, 54, 0.95);
 }
 
 .day-column.drag-over {
@@ -64,6 +87,54 @@
   margin-right: 0.25rem;
 }
 
+.coverage-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  margin-right: 0.5rem;
+}
+
+.coverage-badge mat-icon {
+  font-size: 18px;
+}
+
+.coverage-badge:hover {
+  transform: translateY(-1px);
+}
+
+.coverage-met {
+  color: #1b5e20;
+  background: rgba(76, 175, 80, 0.12);
+  border-color: rgba(76, 175, 80, 0.28);
+}
+
+.coverage-warning {
+  color: #e65100;
+  background: rgba(255, 167, 38, 0.14);
+  border-color: rgba(255, 167, 38, 0.3);
+}
+
+.coverage-critical {
+  color: #c62828;
+  background: rgba(229, 57, 53, 0.14);
+  border-color: rgba(229, 57, 53, 0.3);
+}
+
+.coverage-scroll-target {
+  animation: coverage-flash 1.2s ease-in-out;
+}
+
+@keyframes coverage-flash {
+  0% { box-shadow: 0 0 0 0 rgba(63, 81, 181, 0.35); }
+  50% { box-shadow: 0 0 0 12px rgba(63, 81, 181, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(63, 81, 181, 0); }
+}
+
 .day-content {
   flex: 1;
   padding: 0.5rem;
@@ -112,6 +183,10 @@
   transition: all 0.2s;
 }
 
+.shift-card.compact {
+  padding: 0.5rem;
+}
+
 .shift-card:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   transform: translateY(-2px);
@@ -122,6 +197,52 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.5rem;
+}
+
+.shift-header.compact {
+  align-items: center;
+}
+
+.shift-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+  border-radius: 9999px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: normal;
+  text-transform: uppercase;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
+}
+
+.shift-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.shift-card.compact .employee-name,
+.shift-card.compact .shift-meta,
+.shift-card.compact .shift-notes {
+  display: none;
+}
+
+.shift-card.compact .shift-time {
+  font-size: 0.9rem;
 }
 
 .shift-header > div {
@@ -139,6 +260,17 @@
 .shift-time {
   font-size: 0.8rem;
   color: #666;
+}
+
+.shift-meta {
+  display: inline-block;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: #555;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .shift-notes {

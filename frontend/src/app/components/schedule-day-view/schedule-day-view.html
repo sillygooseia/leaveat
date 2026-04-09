@@ -1,0 +1,84 @@
+<div class="dv-root">
+
+  <!-- ── Column header bar ── -->
+  <div class="dv-header">
+    <div class="dv-gutter-head"></div>
+
+    @if (visibleEmployees.length === 0) {
+      <div class="dv-no-emp-msg">No shifts scheduled — use the week view to add shifts.</div>
+    }
+
+    @if (!personalMode) {
+      @for (emp of visibleEmployees; track emp.id) {
+        <div class="dv-emp-col-head" [style.border-top-color]="emp.color">
+          <span class="dv-emp-name">{{ emp.name }}</span>
+          <span class="dv-emp-hours">{{ getTotalHours(emp.id) }}</span>
+        </div>
+      }
+    } @else {
+      @if (visibleEmployees.length > 0) {
+        <div class="dv-emp-col-head dv-personal-head">
+          <span class="dv-emp-hours">{{ getTotalHours(visibleEmployees[0].id) }} scheduled</span>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ── Scrollable timeline ── -->
+  <div class="dv-body">
+
+    <!-- Time gutter -->
+    <div class="dv-time-gutter" [style.height.px]="totalPx">
+      @for (lbl of hourLabels; track lbl.topPx) {
+        <div class="dv-time-label" [style.top.px]="lbl.topPx">{{ lbl.label }}</div>
+      }
+    </div>
+
+    <!-- Employee lanes -->
+    @for (emp of visibleEmployees; track emp.id) {
+      <div class="dv-lane" [style.height.px]="totalPx">
+
+        <!-- Hour grid lines -->
+        @for (lbl of hourLabels; track lbl.topPx) {
+          <div class="dv-hour-line" [style.top.px]="lbl.topPx"></div>
+        }
+        <!-- Half-hour lines -->
+        @for (topPx of halfHourLines; track topPx) {
+          <div class="dv-half-line" [style.top.px]="topPx"></div>
+        }
+
+        <!-- Shift blocks -->
+        @for (block of getBlocksFor(emp.id); track block.shift.id) {
+          <div class="dv-shift-block"
+               [class.overnight-start]="block.isOvernightStart"
+               [class.overnight-end]="block.isOvernightEnd"
+               [style.top.px]="block.topPx"
+               [style.height.px]="block.heightPx"
+               [style.background-color]="emp.color + '22'"
+               [style.border-left-color]="emp.color"
+               [matTooltip]="block.shift.startTime + ' – ' + block.shift.endTime + (block.shift.notes ? ': ' + block.shift.notes : '')"
+               (click)="editShift(block.shift)">
+            <div class="dv-block-inner">
+              <span class="dv-block-time">{{ block.shift.startTime }} – {{ block.shift.endTime }}</span>
+              @if (block.metaLabel) {
+                <span class="dv-block-meta">{{ block.metaLabel }}</span>
+              }
+              @if (block.shift.notes) {
+                <span class="dv-block-note">{{ block.shift.notes }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Empty lane placeholder when no employees have shifts -->
+    @if (visibleEmployees.length === 0) {
+      <div class="dv-empty" [style.height.px]="totalPx">
+        <mat-icon>calendar_today</mat-icon>
+        <span>No shifts this day</span>
+      </div>
+    }
+
+  </div>
+</div>

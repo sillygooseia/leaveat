@@ -154,7 +154,7 @@
 
 .schedule-preview {
   background: white;
-  border-radius: 12px;
+  border-radius: 20px;
   padding: 2rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   max-width: 500px;
@@ -168,6 +168,14 @@
   margin-bottom: 1.5rem;
   font-weight: 600;
   color: #2c3e50;
+}
+
+.hero-preview-img {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+  object-fit: cover;
 }
 
 .check-icon {

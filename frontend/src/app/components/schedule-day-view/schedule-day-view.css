@@ -1,0 +1,213 @@
+.dv-root {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 130px);
+  background: #fff;
+  margin: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────── */
+
+.dv-header {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 2px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.dv-gutter-head {
+  width: 68px;
+  min-width: 68px;
+  border-right: 1px solid #e0e0e0;
+}
+
+.dv-emp-col-head {
+  flex: 1;
+  padding: 0.65rem 1rem 0.5rem;
+  border-top: 3px solid #ccc;
+  border-right: 1px solid #efefef;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.dv-personal-head {
+  border-top-color: #5c6bc0;
+}
+
+.dv-emp-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #222;
+}
+
+.dv-emp-hours {
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.dv-no-emp-msg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  color: #bbb;
+  font-style: italic;
+  font-size: 0.87rem;
+}
+
+/* ── Scrollable body ─────────────────────────────── */
+
+.dv-body {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* ── Time gutter ─────────────────────────────────── */
+
+.dv-time-gutter {
+  width: 68px;
+  min-width: 68px;
+  flex-shrink: 0;
+  border-right: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.dv-time-label {
+  position: absolute;
+  right: 8px;
+  font-size: 0.68rem;
+  color: #aaa;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Employee lanes ──────────────────────────────── */
+
+.dv-lane {
+  flex: 1;
+  border-right: 1px solid #f0f0f0;
+  position: relative;
+  min-width: 140px;
+}
+
+.dv-hour-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #efefef;
+  pointer-events: none;
+}
+
+.dv-half-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #f8f8f8;
+  pointer-events: none;
+  border-top: 1px dashed #ebebeb;
+}
+
+/* ── Shift blocks ────────────────────────────────── */
+
+.dv-shift-block {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  border-left: 4px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  z-index: 1;
+}
+
+.dv-shift-block:hover {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  transform: translateX(2px) scaleY(1.005);
+  z-index: 3;
+}
+
+/* Overnight block that started today and crosses midnight */
+.dv-shift-block.overnight-start {
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.2);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Overnight block that carries over from yesterday */
+.dv-shift-block.overnight-end {
+  opacity: 0.75;
+  border-left-style: dashed;
+  border-top: 2px dashed rgba(0, 0, 0, 0.2);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* ── Block content ───────────────────────────────── */
+
+.dv-block-inner {
+  padding: 0.3rem 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  height: 100%;
+}
+
+.dv-block-time {
+  font-size: 0.77rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #222;
+}
+
+.dv-block-meta {
+  font-size: 0.67rem;
+  color: #666;
+  font-style: italic;
+}
+
+.dv-block-note {
+  font-size: 0.7rem;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Empty state ─────────────────────────────────── */
+
+.dv-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  gap: 0.75rem;
+  padding: 2rem;
+}
+
+.dv-empty mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+}
+
+.dv-empty span {
+  font-size: 0.95rem;
+}

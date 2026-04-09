@@ -289,7 +289,7 @@ This lives in a `buildAiPrompt()` helper so it can be tuned without touching the
 **Using Stripe** (already have an account). Swap is minimal — only `checkout.ts` and `webhook.ts` change.
 
 **Stripe setup:**
-- Create a **Recurring Price** (Annual, $29/year) in the Stripe dashboard
+- Create a **Recurring Price** (Annual, $59/year) in the Stripe dashboard
 - Point Stripe webhook endpoint to `POST /api/license/webhook/stripe`
 - Enable events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted`
 
@@ -428,9 +428,9 @@ When the API returns 429 (daily limit hit):
 ## Build Order (Recommended)
 
 ```
-Week 1: Phase 0 (license model) + Phase 1 (AI endpoint skeleton, no OpenAI yet - return mock JSON)
+Week 1: Phase 0 (license model) + Phase 1 (AI endpoint skeleton, no Groq yet - return mock JSON)
 Week 1: Phase 4 (frontend component against mock endpoint)
-Week 2: Phase 2 (prompt engineering, real OpenAI integration)
+Week 2: Phase 2 (prompt engineering, real Groq integration)
 Week 2: Phase 5 (employee notes persistence) + Phase 7 (rate limit UX)
 Week 3: Phase 3 (billing/renewal webhook extension) + Phase 6 (feature flag sweep)
 Week 3: End-to-end testing, prompt tuning, Stripe product + webhook setup

@@ -77,6 +77,11 @@ export class DbService {
     void this._db.store<Schedule>('schedules').delete(id);
   }
 
+  clearSchedules(): void {
+    this.schedules.set([]);
+    void this._db.store<Schedule>('schedules').clear();
+  }
+
   // ── Employees ─────────────────────────────────────────────────────────────
 
   saveEmployees(employees: Employee[]): void {

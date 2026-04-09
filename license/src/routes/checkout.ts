@@ -1,21 +1,21 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { licenseProduct } from '../config';
+import Stripe = require('stripe');
 
 const router = Router();
 
-const LS_API_KEY = licenseProduct.checkout.apiKey;
-const LS_STORE_ID = licenseProduct.checkout.storeId;
-const LS_VARIANT_ID = licenseProduct.checkout.variantId;
+const STRIPE_SECRET_KEY = licenseProduct.checkout.secretKey;
+const STRIPE_PRICE_ID = licenseProduct.checkout.priceId;
 const FRONTEND_URL = licenseProduct.frontendUrl;
 
 function isConfigured(): boolean {
-  return !!(LS_API_KEY && LS_STORE_ID && LS_VARIANT_ID);
+  return !!(STRIPE_SECRET_KEY && STRIPE_PRICE_ID);
 }
 
 /**
  * POST /checkout
- * Creates a Lemon Squeezy hosted checkout URL and returns it.
+ * Creates a Stripe hosted checkout session URL and returns it.
  * The frontend redirects the user to this URL to complete payment.
  */
 router.post(
@@ -36,54 +36,19 @@ router.post(
     }
 
     try {
-      const checkoutData: Record<string, unknown> = {
-        data: {
-          type: 'checkouts',
-          attributes: {
-            checkout_options: {
-              embed: false,
-              media: false,
-              logo: true,
-            },
-            checkout_data: {
-              email: req.body.email,
-              custom: {
-                redirect_url: `${FRONTEND_URL}/activate`,
-              },
-            },
-            product_options: {
-              redirect_url: `${FRONTEND_URL}/activate`,
-            },
-            expires_at: null,
-          },
-          relationships: {
-            store: { data: { type: 'stores', id: LS_STORE_ID } },
-            variant: { data: { type: 'variants', id: LS_VARIANT_ID } },
-          },
-        },
-      };
+      const stripe = new Stripe(STRIPE_SECRET_KEY!);
 
-      const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${LS_API_KEY}`,
-          'Content-Type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json',
-        },
-        body: JSON.stringify(checkoutData),
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        line_items: [{ price: STRIPE_PRICE_ID!, quantity: 1 }],
+        success_url: `${FRONTEND_URL}/activate?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${FRONTEND_URL}/premium`,
+        customer_email: req.body.email || undefined,
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        console.error('[checkout] Lemon Squeezy error:', response.status, text);
-        res.status(502).json({ error: 'Failed to create checkout' });
-        return;
-      }
-
-      const json = await response.json() as { data: { attributes: { url: string } } };
-      res.json({ checkoutUrl: json.data.attributes.url });
+      res.json({ checkoutUrl: session.url });
     } catch (err) {
-      console.error('[checkout] Error:', err);
+      console.error('[checkout] Stripe error:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

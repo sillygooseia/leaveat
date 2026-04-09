@@ -30,7 +30,7 @@ export class HelpComponent {
     },
     {
       q: 'What is a Premium license?',
-      a: 'A Premium license is a one-time annual purchase ($29/year) stored on your device. It unlocks longer share links, cloud backup, multiple saved schedules, and registered device access for staff. No account is ever created.'
+      a: 'A Premium license is a one-time annual purchase ($59/year) stored on your device. It unlocks longer share links, cloud backup, multiple saved schedules, and registered device access for staff. No account is ever created.'
     },
     {
       q: 'Can I move my Premium license to a new device?',

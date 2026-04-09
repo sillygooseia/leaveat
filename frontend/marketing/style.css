@@ -195,6 +195,13 @@ a {
   color: #5a9d85;
 }
 
+.hero-preview-img {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);

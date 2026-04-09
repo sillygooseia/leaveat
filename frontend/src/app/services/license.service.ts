@@ -6,6 +6,9 @@ import type { PremiumFeature } from '../models';
 export type LicenseToken = EphemeLicenseToken;
 export type LicenseState = EphemeLicenseState;
 
+/** How a specific feature gates: no token, valid token but feature absent, or fully unlocked. */
+export type FeatureAccess = 'not_premium' | 'missing_from_plan' | 'unlocked';
+
 @Injectable({ providedIn: 'root' })
 export class LicenseService {
   private readonly _core = new EphemeLicenseController<PremiumFeature>({
@@ -37,7 +40,19 @@ export class LicenseService {
     this._bump();
   }
 
-  getLicense(): EphemeLicenseToken | null { return this._core.getLicense(); }
+  getLicense(): EphemeLicenseToken | null { this._rev(); return this._core.getLicense(); }
   isExpired(): boolean { return this._core.isExpired(); }
-  hasFeature(feature: PremiumFeature): boolean { return this._core.hasFeature(feature); }
+  hasFeature(feature: PremiumFeature): boolean { this._rev(); return this._core.hasFeature(feature); }
+
+  /**
+   * Returns the access state for a feature:
+   * - 'not_premium'       — no valid license at all
+   * - 'missing_from_plan' — valid license but feature not included (old/lower-tier token)
+   * - 'unlocked'          — feature is available
+   */
+  featureAccess(feature: PremiumFeature): FeatureAccess {
+    this._rev();
+    if (!this._core.isPremium) return 'not_premium';
+    return this._core.hasFeature(feature) ? 'unlocked' : 'missing_from_plan';
+  }
 }

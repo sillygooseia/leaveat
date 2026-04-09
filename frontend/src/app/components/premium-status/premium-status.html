@@ -12,6 +12,22 @@
 
     <mat-divider></mat-divider>
 
+    <!-- License features -->
+    <div class="section">
+      <h4>License Features</h4>
+      @if (license()?.features?.length) {
+        <ul class="feature-list">
+          @for (f of license()!.features; track f) {
+            <li><mat-icon class="feature-check">check_circle</mat-icon> {{ f }}</li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">No features listed in token</p>
+      }
+    </div>
+
+    <mat-divider></mat-divider>
+
     <!-- Cloud Backup -->
     <div class="section">
       <h4>Cloud Backup</h4>

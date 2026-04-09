@@ -27,8 +27,16 @@ export async function requireLicense(
     const { publicKey } = await getKeyPair();
     const claims = await verifyLicenseToken(token, publicKey);
 
-    // Revocation check against Postgres
-    const revoked = await isLicenseRevoked(claims.jti!);
+    // Revocation check against Postgres. If the database is unavailable, allow
+    // the license to proceed instead of failing every authenticated request.
+    let revoked = false;
+    try {
+      revoked = await isLicenseRevoked(claims.jti!);
+    } catch (err: any) {
+      console.warn('[license] Revocation check failed; continuing without DB-backed revocation:', err?.message ?? err);
+      revoked = false;
+    }
+
     if (revoked) {
       res.status(403).json({ error: 'License has been revoked' });
       return;

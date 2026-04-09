@@ -9,4 +9,5 @@ export * from './license.service';
 export * from './backup.service';
 export * from './registered-access.service';
 export * from './hub-sync.service';
+export * from './ai-schedule.service';
 

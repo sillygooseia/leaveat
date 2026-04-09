@@ -1,0 +1,270 @@
+/* ── Gate ── */
+.ai-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.75rem 1.5rem;
+  gap: 0.75rem;
+  max-width: 360px;
+}
+
+.ai-gate-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--mat-sys-primary, #6750a4);
+}
+
+.ai-gate-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.ai-gate-body {
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+.ai-gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* ── Dialog title ── */
+.ai-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.ai-title-icon {
+  color: var(--mat-sys-primary, #6750a4);
+}
+
+.ai-title-icon.error-icon {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+/* ── Content ── */
+.ai-dialog-content {
+  min-width: 420px;
+  max-width: 580px;
+  padding-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .ai-dialog-content {
+    min-width: unset;
+  }
+}
+
+.ai-intro {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ── Employee notes ── */
+.employee-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.employee-note-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.emp-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.emp-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.note-field {
+  width: 100%;
+}
+
+.section-divider {
+  margin: 1rem 0;
+}
+
+.coverage-autofill-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: color-mix(in srgb, var(--mat-sys-primary, #6750a4) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary, #6750a4) 25%, transparent);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface, #1c1b1f);
+}
+
+.coverage-autofill-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--mat-sys-primary, #6750a4);
+}
+
+.full-width-field {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Loading ── */
+.ai-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.75rem 1.5rem;
+  gap: 0.75rem;
+  min-width: 260px;
+}
+
+.ai-loading-label {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.ai-loading-hint {
+  font-size: 0.85rem;
+  opacity: 0.65;
+  margin: 0;
+}
+
+/* ── Review ── */
+.ai-summary {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 0.75rem 0;
+}
+
+.ai-warnings {
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.ai-warning-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.87rem;
+}
+
+.warn-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #f57c00;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ai-shift-count {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0 0 1rem 0;
+}
+
+.ai-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.ai-preview-day {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.ai-preview-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.ai-preview-day-count {
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0.85rem;
+}
+
+.ai-preview-shift {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ai-preview-shift:first-child {
+  border-top: none;
+}
+
+.ai-preview-employee {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.ai-preview-meta,
+.ai-preview-role {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.ai-preview-right {
+  text-align: right;
+  min-width: 8rem;
+}
+
+/* ── Error ── */
+.ai-error-message {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.ai-countdown {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0.25rem;
+  opacity: 0.85;
+}

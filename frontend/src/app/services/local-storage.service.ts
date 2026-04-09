@@ -37,19 +37,14 @@ export class LocalStorageService {
   }
 
   isAtScheduleLimit(): boolean {
-    if (this.licenseService.hasFeature('unlimited_schedules')) return false;
-    return this.db.schedules().length >= FREE_SCHEDULE_LIMIT;
+    return false;
   }
 
   getScheduleLimit(): number | null {
-    return this.licenseService.hasFeature('unlimited_schedules') ? null : FREE_SCHEDULE_LIMIT;
+    return null;
   }
 
   saveSchedule(schedule: Schedule): void {
-    const isNew = !this.db.schedules().find(s => s.id === schedule.id);
-    if (isNew && !this.licenseService.hasFeature('unlimited_schedules') && this.db.schedules().length >= FREE_SCHEDULE_LIMIT) {
-      throw new Error('FREE_TIER_LIMIT');
-    }
     this.db.saveSchedule(schedule);
   }
 
@@ -58,6 +53,11 @@ export class LocalStorageService {
     if (this.getCurrentScheduleId() === id) {
       this.clearCurrentScheduleId();
     }
+  }
+
+  clearSchedules(): void {
+    this.db.clearSchedules();
+    this.clearCurrentScheduleId();
   }
 
   getSchedule(id: string): Schedule | null {
@@ -91,6 +91,70 @@ export class LocalStorageService {
 
   saveEmployees(employees: Employee[]): void {
     this.db.saveEmployees(employees);
+  }
+
+  exportAppData(): string {
+    const payload = {
+      schema: 'leaveat-export',
+      version: 1,
+      exportedAt: Date.now(),
+      currentScheduleId: this.getCurrentScheduleId(),
+      schedules: this.getSchedules(),
+      employees: this.getEmployees(),
+      aiNotes: this.getAiNotes(),
+    } as const;
+
+    return JSON.stringify(payload, null, 2);
+  }
+
+  importAppData(raw: string): void {
+    let payload: {
+      schema: string;
+      version: number;
+      currentScheduleId: string | null;
+      schedules: Schedule[];
+      employees: Employee[];
+      aiNotes?: Record<string, string>;
+    };
+
+    try {
+      payload = JSON.parse(raw);
+    } catch (error) {
+      throw new Error('Invalid JSON file');
+    }
+
+    if (payload?.schema !== 'leaveat-export' || payload.version !== 1) {
+      throw new Error('Unsupported import file format');
+    }
+
+    this.clearSchedules();
+    this.clearEmployees();
+    this.saveEmployees(payload.employees);
+    payload.schedules.forEach(schedule => this.saveSchedule(schedule));
+    this.setAiNotes(payload.aiNotes ?? {});
+
+    if (payload.currentScheduleId && payload.schedules.some(s => s.id === payload.currentScheduleId)) {
+      this.setCurrentScheduleId(payload.currentScheduleId);
+    } else if (payload.schedules.length > 0) {
+      this.setCurrentScheduleId(payload.schedules[0].id);
+    }
+  }
+
+  getAiNotes(): Record<string, string> {
+    try {
+      const raw = localStorage.getItem('leaveat:ai-notes');
+      return raw ? JSON.parse(raw) as Record<string, string> : {};
+    } catch {
+      return {};
+    }
+  }
+
+  setAiNotes(notes: Record<string, string>): void {
+    try {
+      localStorage.setItem('leaveat:ai-notes', JSON.stringify(notes));
+    } catch {
+      // ignore storage failures
+    }
   }
 
   clearEmployees(): void {
@@ -160,7 +224,7 @@ export class LocalStorageService {
     this.db.employees.set([]);
     this.db.viewerAccess.set([]);
     // Clear credentials and preferences from localStorage
-    ['leaveat:current-schedule-id', 'leaveat:license', 'leaveat:license-public-key'].forEach(k =>
+    ['leaveat:current-schedule-id', 'leaveat:license', 'leaveat:license-public-key', 'leaveat:ai-notes', 'leaveat:ai-draft'].forEach(k =>
       localStorage.removeItem(k)
     );
     console.warn('[LocalStorage] All data cleared');

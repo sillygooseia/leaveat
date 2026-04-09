@@ -10,6 +10,10 @@ import { HelpComponent } from './pages/help/help';
 import { HowItWorksComponent } from './pages/how-it-works/how-it-works';
 import { TermsComponent } from './pages/terms/terms';
 import { PrivacyComponent } from './pages/privacy/privacy';
+import { AiSchedulerPageComponent } from './pages/ai-scheduler/ai-scheduler-page';
+import { CoveragePageComponent } from './pages/coverage/coverage-page';
+import { PrintPageComponent } from './pages/print/print-page';
+import { LandingComponent } from './pages/landing/landing';
 
 export const routes: Routes = [
   {
@@ -18,8 +22,24 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'home',
+    component: LandingComponent
+  },
+  {
     path: 'schedule',
     component: ScheduleComponent
+  },
+  {
+    path: 'ai',
+    component: AiSchedulerPageComponent
+  },
+  {
+    path: 'coverage',
+    component: CoveragePageComponent
+  },
+  {
+    path: 'print',
+    component: PrintPageComponent
   },
   {
     path: 's/:id',

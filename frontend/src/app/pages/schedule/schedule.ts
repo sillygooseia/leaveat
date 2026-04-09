@@ -1,6 +1,6 @@
-import { Component, signal, effect, inject, computed, ViewChild } from '@angular/core';
+import { Component, signal, effect, inject, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,15 +16,14 @@ import { map } from 'rxjs/operators';
 import { ScheduleGridComponent } from '../../components/schedule-grid/schedule-grid';
 import { EmployeeManagementComponent } from '../../components/employee-management/employee-management';
 import { ShareDialogComponent } from '../../components/share-dialog/share-dialog';
-import { CoverageDialogComponent, CoverageDialogData } from '../../components/coverage-dialog/coverage-dialog';
 import { CopyDayDialogComponent } from '../../components/copy-day-dialog/copy-day-dialog';
 import { HelpDialogComponent } from '../../components/help-dialog/help-dialog';
 import { WorkspaceWizardDialogComponent, WorkspaceWizardResult } from '../../components/workspace-wizard-dialog/workspace-wizard-dialog';
-import { PrintDialogComponent, PrintDialogData } from '../../components/print-dialog/print-dialog';
 import { ActivitiesPanelComponent } from '../../components/activities-panel/activities-panel';
-import { LocalStorageService, EmployeeService } from '../../services';
-import { LicenseService } from '../../services/license.service';
-import { Schedule, Shift, Employee, CoverageRequirements, ActivityEvent } from '../../models';
+import { AiSchedulerDialogResult } from '../../components/ai-scheduler/ai-scheduler';
+import { LocalStorageService, EmployeeService, LicenseService } from '../../services';
+import { PendingAiResultService } from '../../services/pending-ai-result.service';
+import { Schedule, Shift, Employee, ActivityEvent } from '../../models';
 
 @Component({
   selector: 'app-schedule',
@@ -39,7 +38,6 @@ import { Schedule, Shift, Employee, CoverageRequirements, ActivityEvent } from '
     MatTooltipModule,
     MatMenuModule,
     MatDividerModule,
-    PrintDialogComponent,
     ScheduleGridComponent,
     EmployeeManagementComponent,
     ActivitiesPanelComponent,
@@ -49,6 +47,12 @@ import { Schedule, Shift, Employee, CoverageRequirements, ActivityEvent } from '
 })
 export class ScheduleComponent {
   private _bp = inject(BreakpointObserver);
+  private _licenseService = inject(LicenseService);
+  private _router = inject(Router);
+  private _pendingAi = inject(PendingAiResultService);
+
+  readonly isPremium = this._licenseService.isPremium;
+  readonly isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   isMobile = toSignal(
     this._bp.observe('(max-width: 600px)').pipe(map(r => r.matches)),
@@ -56,6 +60,7 @@ export class ScheduleComponent {
   );
 
   @ViewChild(ActivitiesPanelComponent) activitiesPanel?: ActivitiesPanelComponent;
+  @ViewChild('dataImportInput') dataImportInput?: ElementRef<HTMLInputElement>;
 
   currentSchedule = signal<Schedule | null>(null);
   shifts = signal<Shift[]>([]);
@@ -66,20 +71,38 @@ export class ScheduleComponent {
   scheduleMode = computed(() => this.currentSchedule()?.mode ?? 'workplace' as const);
   isPersonalMode = computed(() => this.scheduleMode() === 'personal');
 
+  dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  viewMode = signal<'week' | 'day'>('week');
+  selectedDay = signal<number>(this._getTodayIndexInWeek(this._getMonday(new Date())));
+  compactShiftMode = signal(false);
+
   weekStartDate = signal<string>(this._getMonday(new Date()));
   weekDateRange = signal<string>('');
+  currentDayLabel = signal<string>('');
 
   /** Shifts for the currently viewed week only */
   currentWeekShifts = computed(() =>
     this.shifts().filter(s => s.weekStartDate === this.weekStartDate())
   );
 
+  currentDayShifts = computed(() => {
+    const day = this.selectedDay();
+    return this.currentWeekShifts().filter(s => s.day === day || (s.day === ((day + 6) % 7) && s.endTime < s.startTime));
+  });
+
+  currentViewLabel = computed(() => {
+    if (this.viewMode() === 'week') {
+      return this.weekDateRange();
+    }
+    const start = new Date(this.weekStartDate() + 'T00:00:00');
+    start.setDate(start.getDate() + this.selectedDay());
+    const month = start.toLocaleString('default', { month: 'short' });
+    return `${this.dayNames[this.selectedDay()]} ${month} ${start.getDate()}, ${start.getFullYear()}`;
+  });
+
   // ==================== Workspace (multi-schedule) ====================
 
   allSchedules = signal<Schedule[]>([]);
-  isPremium = computed(() => this.licenseService.isPremium());
-  scheduleLimit = computed(() => this.localStorageService.getScheduleLimit()); // null = unlimited
-  atScheduleLimit = computed(() => this.localStorageService.isAtScheduleLimit());
 
   private _autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -100,7 +123,6 @@ export class ScheduleComponent {
   constructor(
     private localStorageService: LocalStorageService,
     private employeeService: EmployeeService,
-    private licenseService: LicenseService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {
@@ -108,6 +130,12 @@ export class ScheduleComponent {
     this.loadEmployees();
     this.updateWeekDateRange();
     this.isWelcomeBannerVisible.set(!localStorage.getItem(this.WELCOME_BANNER_KEY));
+
+    // Apply any AI-generated shifts that came back from the /ai page
+    const aiResult = this._pendingAi.take();
+    if (aiResult?.accepted) {
+      this._applyAiShifts(aiResult);
+    }
 
     // Mode suggestion effect — fires after 3+ shifts reveal a usage pattern
     effect(() => {
@@ -275,9 +303,231 @@ export class ScheduleComponent {
     };
 
     this.dialog.open(ShareDialogComponent, {
-      width: 'min(500px, 95vw)',
+      position: { right: '0', top: '0' },
+      height: '100vh',
+      width: 'min(520px, 95vw)',
+      maxWidth: '95vw',
+      panelClass: 'side-sheet-panel',
       data: weekSnapshot
     });
+  }
+
+  loadDaycareDemo(): void {
+    const { schedule, employees, aiNotes } = this.buildDaycareDemo();
+    this.saveDemoSchedule(schedule, employees, aiNotes);
+    this.snackBar.open('Daycare demo loaded', 'Close', { duration: 3000 });
+  }
+
+  loadNursingDemo(): void {
+    const { schedule, employees, aiNotes } = this.buildNursingDemo();
+    this.saveDemoSchedule(schedule, employees, aiNotes);
+    this.snackBar.open('Nursing facility demo loaded', 'Close', { duration: 3000 });
+  }
+
+  private saveDemoSchedule(schedule: Schedule, employees: Employee[], aiNotes: Record<string, string>): void {
+    this.localStorageService.clearSchedules();
+    this.localStorageService.clearEmployees();
+    this.localStorageService.setAiNotes({});
+
+    this.localStorageService.saveEmployees(employees);
+    schedule.employees = employees;
+    this.localStorageService.saveSchedule(schedule);
+    this.localStorageService.setAiNotes(aiNotes);
+    this.localStorageService.setCurrentScheduleId(schedule.id);
+    this.currentSchedule.set(schedule);
+    this.shifts.set(schedule.shifts);
+    this.employees.set(employees);
+    this._refreshAllSchedules();
+    this.weekStartDate.set(this._getMonday(new Date()));
+    this.updateWeekDateRange();
+  }
+
+  private buildDaycareDemo(): { schedule: Schedule; employees: Employee[]; aiNotes: Record<string,string> } {
+    const employees: Employee[] = [
+      { id: 'emp_amy', name: 'Amy Torres', role: 'Infant Lead', color: '#3f51b5', maxWeeklyHours: 40 },
+      { id: 'emp_brian', name: 'Brian Lee', role: 'Toddler Lead', color: '#4caf50', maxWeeklyHours: 40 },
+      { id: 'emp_clara', name: 'Clara Patel', role: 'Preschool Lead', color: '#ff9800', maxWeeklyHours: 34 },
+      { id: 'emp_danielle', name: 'Danielle Kim', role: 'Infant Assistant', color: '#9c27b0', maxWeeklyHours: 32 },
+      { id: 'emp_eli', name: 'Eli Johnson', role: 'Toddler Assistant', color: '#2196f3', maxWeeklyHours: 32 },
+      { id: 'emp_nia', name: 'Nia Davis', role: 'Preschool Assistant', color: '#00bcd4', maxWeeklyHours: 30 },
+      { id: 'emp_oliver', name: 'Oliver Park', role: 'Floater', color: '#ff5722', maxWeeklyHours: 28 },
+    ];
+
+    const shifts: Shift[] = [];
+    const weekStart = this._getMonday(new Date());
+    for (let day = 0; day < 5; day++) {
+      if (day === 0) {
+        // Monday is lightly staffed to demonstrate undercoverage
+        shifts.push(
+          { id: `shift_daycare_amy_${day}`, employeeId: 'emp_amy', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Check attendance and morning snack' },
+          { id: `shift_daycare_brian_${day}`, employeeId: 'emp_brian', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Supervise nap time and pickup' },
+          { id: `shift_daycare_clara_${day}`, employeeId: 'emp_clara', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Cover preschool room' },
+        );
+      } else if (day === 1) {
+        // Tuesday meets staffing exactly
+        shifts.push(
+          { id: `shift_daycare_amy_${day}`, employeeId: 'emp_amy', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Check attendance and morning snack' },
+          { id: `shift_daycare_danielle_${day}`, employeeId: 'emp_danielle', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Support infant care and diaper routines' },
+          { id: `shift_daycare_brian_${day}`, employeeId: 'emp_brian', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Supervise nap time and pickup' },
+          { id: `shift_daycare_eli_${day}`, employeeId: 'emp_eli', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Support toddler activities and crafts' },
+          { id: `shift_daycare_clara_${day}`, employeeId: 'emp_clara', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Cover preschool room' },
+          { id: `shift_daycare_nia_${day}`, employeeId: 'emp_nia', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Lead preschool circle time and learning centers' },
+        );
+      } else if (day === 2) {
+        // Wednesday has overstaff in preschool
+        shifts.push(
+          { id: `shift_daycare_amy_${day}`, employeeId: 'emp_amy', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Check attendance and morning snack' },
+          { id: `shift_daycare_danielle_${day}`, employeeId: 'emp_danielle', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Support infant care and diaper routines' },
+          { id: `shift_daycare_brian_${day}`, employeeId: 'emp_brian', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Supervise nap time and pickup' },
+          { id: `shift_daycare_eli_${day}`, employeeId: 'emp_eli', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Support toddler activities and crafts' },
+          { id: `shift_daycare_clara_${day}`, employeeId: 'emp_clara', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Cover preschool room' },
+          { id: `shift_daycare_nia_${day}`, employeeId: 'emp_nia', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Lead preschool circle time and learning centers' },
+          { id: `shift_daycare_oliver_${day}`, employeeId: 'emp_oliver', day, startTime: '10:00', endTime: '14:00', roomId: 'room_preschool', notes: 'Extra preschool support for art activities' },
+        );
+      } else if (day === 3) {
+        // Thursday is short one toddler staff
+        shifts.push(
+          { id: `shift_daycare_amy_${day}`, employeeId: 'emp_amy', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Check attendance and morning snack' },
+          { id: `shift_daycare_danielle_${day}`, employeeId: 'emp_danielle', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Support infant care and diaper routines' },
+          { id: `shift_daycare_brian_${day}`, employeeId: 'emp_brian', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Supervise nap time and pickup' },
+          { id: `shift_daycare_clara_${day}`, employeeId: 'emp_clara', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Cover preschool room' },
+          { id: `shift_daycare_nia_${day}`, employeeId: 'emp_nia', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Lead preschool circle time and learning centers' },
+        );
+      } else {
+        // Friday has overcoverage in Infant Room
+        shifts.push(
+          { id: `shift_daycare_amy_${day}`, employeeId: 'emp_amy', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Check attendance and morning snack' },
+          { id: `shift_daycare_danielle_${day}`, employeeId: 'emp_danielle', day, startTime: '08:00', endTime: '16:00', roomId: 'room_infant', notes: 'Support infant care and diaper routines' },
+          { id: `shift_daycare_oliver_${day}`, employeeId: 'emp_oliver', day, startTime: '09:00', endTime: '14:00', roomId: 'room_infant', notes: 'Extra infant coverage for busy drop-off' },
+          { id: `shift_daycare_brian_${day}`, employeeId: 'emp_brian', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Supervise nap time and pickup' },
+          { id: `shift_daycare_eli_${day}`, employeeId: 'emp_eli', day, startTime: '08:30', endTime: '17:00', roomId: 'room_toddler', notes: 'Support toddler activities and crafts' },
+          { id: `shift_daycare_clara_${day}`, employeeId: 'emp_clara', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Cover preschool room' },
+          { id: `shift_daycare_nia_${day}`, employeeId: 'emp_nia', day, startTime: '09:00', endTime: '15:00', roomId: 'room_preschool', notes: 'Lead preschool circle time and learning centers' },
+        );
+      }
+    }
+
+    const demo: Schedule = {
+      id: this._generateId(),
+      name: 'Daycare Demo',
+      mode: 'workplace',
+      weekStartDate: weekStart,
+      shifts,
+      employees,
+      coverageRequirements: {
+        enabled: true,
+        mode: 'room-ratio',
+        rooms: [
+          { id: 'room_infant', name: 'Infant Room', ageGroup: '0–18 months', capacity: 8, ratioStaff: 1, ratioChildren: 4 },
+          { id: 'room_toddler', name: 'Toddler Room', ageGroup: '18–36 months', capacity: 12, ratioStaff: 1, ratioChildren: 6 },
+          { id: 'room_preschool', name: 'Preschool Room', ageGroup: '3–5 years', capacity: 20, ratioStaff: 1, ratioChildren: 10 },
+        ]
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    const aiNotes: Record<string, string> = {
+      emp_amy: 'Prefers early shifts and handles infant care. Avoids Friday evenings.',
+      emp_brian: 'Best with toddlers and staffing transitions. Not available Tuesdays after 5pm.',
+      emp_clara: 'Great in preschool room. Needs a shorter day on Thursdays.',
+      emp_danielle: 'Supports infants and morning drop-off routines.',
+      emp_eli: 'Strong with toddlers and outdoor play activities.',
+      emp_nia: 'Enjoys preschool circle time and arts projects.',
+    };
+
+    return { schedule: demo, employees, aiNotes };
+  }
+
+  private buildNursingDemo(): { schedule: Schedule; employees: Employee[]; aiNotes: Record<string,string> } {
+    const employees: Employee[] = [
+      { id: 'emp_emma', name: 'Emma Rodriguez', role: 'RN', color: '#e91e63', maxWeeklyHours: 36 },
+      { id: 'emp_nora', name: 'Nora Patel', role: 'RN', color: '#9c27b0', maxWeeklyHours: 36 },
+      { id: 'emp_tom', name: 'Tom Baker', role: 'LPN', color: '#2196f3', maxWeeklyHours: 40 },
+      { id: 'emp_avery', name: 'Avery Lee', role: 'LPN', color: '#00bcd4', maxWeeklyHours: 36 },
+      { id: 'emp_sarah', name: 'Sarah Nguyen', role: 'CNA', color: '#8bc34a', maxWeeklyHours: 40 },
+      { id: 'emp_linda', name: 'Linda Brooks', role: 'CNA', color: '#ff9800', maxWeeklyHours: 40 },
+      { id: 'emp_mike', name: 'Mike Johnson', role: 'Night Nurse', color: '#607d8b', maxWeeklyHours: 32 },
+    ];
+
+    const shifts: Shift[] = [];
+    const weekStart = this._getMonday(new Date());
+    for (let day = 0; day < 7; day++) {
+      const isWeekend = day >= 5;
+      if (day === 1 || day === 4) {
+        // Tuesday and Friday are understaffed in the morning
+        shifts.push(
+          { id: `shift_nursing_emma_day_${day}`, employeeId: 'emp_emma', day, startTime: '07:00', endTime: '15:00', notes: 'Morning med rounds and care planning' },
+        );
+      } else if (day === 2) {
+        // Wednesday has extra RN coverage
+        shifts.push(
+          { id: `shift_nursing_emma_day_${day}`, employeeId: 'emp_emma', day, startTime: '07:00', endTime: '15:00', notes: 'Morning med rounds and care planning' },
+          { id: `shift_nursing_nora_day_${day}`, employeeId: 'emp_nora', day, startTime: '07:00', endTime: '15:00', notes: 'Assist with medication review and admissions' },
+          { id: `shift_nursing_sarah_day_${day}`, employeeId: 'emp_sarah', day, startTime: '07:00', endTime: '15:00', notes: 'Resident hygiene and activity support' },
+        );
+      } else {
+        shifts.push(
+          { id: `shift_nursing_emma_day_${day}`, employeeId: 'emp_emma', day, startTime: '07:00', endTime: '15:00', notes: 'Morning med rounds and care planning' },
+          { id: `shift_nursing_nora_day_${day}`, employeeId: 'emp_nora', day, startTime: '07:00', endTime: '15:00', notes: 'Assist with medication review and admissions' },
+          { id: `shift_nursing_sarah_day_${day}`, employeeId: 'emp_sarah', day, startTime: '07:00', endTime: '15:00', notes: 'Resident hygiene and activity support' },
+        );
+      }
+
+      if (day === 3) {
+        // Thursday has extra evening support
+        shifts.push(
+          { id: `shift_nursing_tom_day_${day}`, employeeId: 'emp_tom', day, startTime: '15:00', endTime: '23:00', notes: 'Evening medication checks and resident support' },
+          { id: `shift_nursing_avery_day_${day}`, employeeId: 'emp_avery', day, startTime: '15:00', endTime: '23:00', notes: 'Dinner support and rest rounds' },
+          { id: `shift_nursing_linda_day_${day}`, employeeId: 'emp_linda', day, startTime: '15:00', endTime: '23:00', notes: 'Assists with quiet hours and resident comfort' },
+        );
+      } else if (day === 4) {
+        // Friday is short one evening RN/LPN staff
+        shifts.push(
+          { id: `shift_nursing_tom_day_${day}`, employeeId: 'emp_tom', day, startTime: '15:00', endTime: '23:00', notes: 'Evening medication checks and resident support' },
+        );
+      } else {
+        shifts.push(
+          { id: `shift_nursing_tom_day_${day}`, employeeId: 'emp_tom', day, startTime: '15:00', endTime: '23:00', notes: 'Evening medication checks and resident support' },
+          { id: `shift_nursing_avery_day_${day}`, employeeId: 'emp_avery', day, startTime: '15:00', endTime: '23:00', notes: 'Dinner support and rest rounds' },
+        );
+      }
+
+      shifts.push({ id: `shift_nursing_mike_day_${day}`, employeeId: 'emp_mike', day, startTime: '23:00', endTime: '07:00', notes: 'Night coverage and safety checks' });
+    }
+
+    const demo: Schedule = {
+      id: this._generateId(),
+      name: 'Nursing Facility Demo',
+      mode: 'workplace',
+      weekStartDate: weekStart,
+      shifts,
+      employees,
+      coverageRequirements: {
+        enabled: true,
+        mode: 'time-based',
+        dayRequirements: Array.from({ length: 7 }, (_, day) => ({
+          day,
+          timeSlots: [
+            { startTime: '07:00', endTime: '15:00', minStaff: 3, requiredRole: 'RN' },
+            { startTime: '15:00', endTime: '23:00', minStaff: 2, requiredRole: 'LPN' },
+            { startTime: '23:00', endTime: '07:00', minStaff: 1, requiredRole: 'Night Nurse' },
+          ]
+        }))
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    const aiNotes: Record<string, string> = {
+      emp_emma: 'Experienced RN. Handles admissions and medication review. Prefers daytime shifts.',
+      emp_tom: 'Great with evening handoffs and resident charting.',
+      emp_sarah: 'Strong resident engagement and morning care routines.',
+      emp_linda: 'Excellent at evening resident support and dinner prep.',
+      emp_mike: 'Prefers overnight shifts and handles quiet-hour safety rounds.',
+    };
+
+    return { schedule: demo, employees, aiNotes };
   }
 
   openHelpDialog(): void {
@@ -288,47 +538,51 @@ export class ScheduleComponent {
   }
 
   openPrintDialog(): void {
-    const schedule = this.currentSchedule();
-    if (!schedule) return;
+    if (!this.currentSchedule()) return;
+    this._router.navigate(['/print'], { queryParams: { week: this.weekStartDate() } });
+  }
 
-    this.dialog.open(PrintDialogComponent, {
-      width: 'min(600px, 95vw)',
-      data: {
-        schedule,
-        shifts: this.currentWeekShifts(),
-        employees: this.employees(),
-        weekDateRange: this.weekDateRange(),
-        weekStartDate: this.weekStartDate(),
-        mode: this.scheduleMode(),
-        activities: this.panelActivities()
-      } as PrintDialogData
-    });
+  exportData(): void {
+    const payload = this.localStorageService.exportAppData();
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `leaveat-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    this.snackBar.open('Data exported as JSON', 'Close', { duration: 3000 });
+  }
+
+  triggerDataImport(): void {
+    this.dataImportInput?.nativeElement.click();
+  }
+
+  async handleDataImport(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = '';
+
+    try {
+      const raw = await file.text();
+      this.localStorageService.importAppData(raw);
+      this._refreshAllSchedules();
+      this.currentSchedule.set(this.localStorageService.getCurrentSchedule());
+      this.shifts.set(this.currentSchedule()?.shifts ?? []);
+      this.employees.set(this.localStorageService.getEmployees());
+      this.weekStartDate.set(this._getMonday(new Date()));
+      this.updateWeekDateRange();
+      this.snackBar.open('Data imported successfully', 'Close', { duration: 3000 });
+    } catch (error) {
+      console.error(error);
+      this.snackBar.open('Import failed: invalid file', 'Close', { duration: 5000 });
+    }
   }
 
   openCoverageDialog(): void {
-    const schedule = this.currentSchedule();
-    if (!schedule) return;
-
-    const dialogRef = this.dialog.open(CoverageDialogComponent, {
-      width: 'min(600px, 95vw)',
-      data: {
-        requirements: schedule.coverageRequirements || null
-      } as CoverageDialogData
-    });
-
-    dialogRef.afterClosed().subscribe((result: CoverageRequirements | null | undefined) => {
-      // result is null when user clicks Cancel, undefined when dismissed via ESC/backdrop — skip save in both cases
-      if (result != null && schedule) {
-        const updated: Schedule = {
-          ...schedule,
-          coverageRequirements: result,
-          updatedAt: Date.now()
-        };
-        this.localStorageService.saveSchedule(updated);
-        this.currentSchedule.set(updated);
-        this.snackBar.open('Coverage requirements updated', 'Close', { duration: 3000 });
-      }
-    });
+    if (!this.currentSchedule()) return;
+    this._router.navigate(['/coverage']);
   }
 
   openCopyDayDialog(): void {
@@ -355,8 +609,19 @@ export class ScheduleComponent {
     this._navigateToWeek(this._getMonday(currentDate));
   }
 
+  previousDay(): void {
+    this.selectedDay.set((this.selectedDay() + 6) % 7);
+  }
+
+  nextDay(): void {
+    this.selectedDay.set((this.selectedDay() + 1) % 7);
+  }
+
   thisWeek(): void {
     this._navigateToWeek(this._getMonday(new Date()));
+    if (this.viewMode() === 'day') {
+      this.selectedDay.set(this._getTodayIndexInWeek(this._getMonday(new Date())));
+    }
   }
 
   private _navigateToWeek(weekStr: string): void {
@@ -377,6 +642,14 @@ export class ScheduleComponent {
     };
     
     this.weekDateRange.set(`${formatDate(start)} - ${formatDate(end)}, ${start.getFullYear()}`);
+  }
+
+  private _getTodayIndexInWeek(weekStr: string): number {
+    const weekStart = new Date(weekStr + 'T00:00:00');
+    const today = new Date();
+    const diff = Math.floor((today.getTime() - weekStart.getTime()) / 86400000);
+    if (diff >= 0 && diff < 7) return diff;
+    return 0;
   }
 
   copyFromLastWeek(): void {
@@ -526,16 +799,6 @@ export class ScheduleComponent {
   }
 
   createWorkspace(): void {
-    if (this.atScheduleLimit()) {
-      this.snackBar.open('Upgrade to Premium for unlimited workspaces', 'Upgrade', {
-        duration: 5000,
-        panelClass: 'snack-premium'
-      }).onAction().subscribe(() => {
-        window.location.href = '/premium';
-      });
-      return;
-    }
-
     this.openWorkspaceWizard(false);
   }
 
@@ -589,6 +852,28 @@ export class ScheduleComponent {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const dayNum = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${dayNum}`;
+  }
+
+  openAiScheduler(): void {
+    if (this.employees().length === 0) {
+      this.snackBar.open('Add employees before using AI scheduling', 'Close', { duration: 4000 });
+      return;
+    }
+    this._router.navigate(['/ai'], { queryParams: { week: this.weekStartDate() } });
+  }
+
+  private _applyAiShifts(result: AiSchedulerDialogResult): void {
+    if (!result.accepted) return;
+    const week = this.weekStartDate();
+    const newShifts = result.shifts.map(s => ({
+      ...s,
+      id: s.id ?? `shift_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      weekStartDate: week,
+    }));
+    const otherWeeks = this.shifts().filter(s => s.weekStartDate !== week);
+    this.shifts.set([...otherWeeks, ...newShifts]);
+    this._saveSchedule();
+    this.snackBar.open(`${newShifts.length} AI-generated shift${newShifts.length === 1 ? '' : 's'} applied`, 'Close', { duration: 4000 });
   }
 
   private _generateId(): string {

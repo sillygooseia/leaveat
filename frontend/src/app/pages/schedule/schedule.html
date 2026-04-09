@@ -8,9 +8,19 @@
       <mat-icon>people</mat-icon>
     </button>
   }
+
+  <button mat-icon-button (click)="viewMode.set('week')" [class.active-view]="viewMode() === 'week'" matTooltip="Week view">
+    <mat-icon>calendar_view_week</mat-icon>
+  </button>
+  <button mat-icon-button (click)="viewMode.set('day')" [class.active-view]="viewMode() === 'day'" matTooltip="Day view">
+    <mat-icon>calendar_view_day</mat-icon>
+  </button>
+  <button mat-icon-button class="compact-button" (click)="compactShiftMode.set(!compactShiftMode())" [class.active-view]="compactShiftMode()" matTooltip="Compact shift cards">
+    <mat-icon>view_agenda</mat-icon>
+  </button>
   
   <div class="week-navigation">
-    <button mat-icon-button (click)="previousWeek()" matTooltip="Previous week">
+    <button mat-icon-button (click)="viewMode() === 'day' ? previousDay() : previousWeek()" matTooltip="Previous">
       <mat-icon>chevron_left</mat-icon>
     </button>
     
@@ -19,19 +29,14 @@
         {{ currentSchedule()?.name || 'Loading...' }}
         <mat-icon class="workspace-chevron">arrow_drop_down</mat-icon>
       </span>
-      <span class="week-range">{{ weekDateRange() }}</span>
+      <span class="week-range">{{ currentViewLabel() }}</span>
     </div>
 
     <mat-menu #workspaceMenu="matMenu" class="workspace-menu">
       <!-- Usage row -->
       <div class="workspace-usage" mat-menu-item disabled>
-        @if (scheduleLimit() !== null) {
-          <mat-icon>folder</mat-icon>
-          <span>{{ allSchedules().length }} / {{ scheduleLimit() }} workspace{{ scheduleLimit() === 1 ? '' : 's' }} used</span>
-        } @else {
-          <mat-icon style="color:#f9a825">workspace_premium</mat-icon>
-          <span>Unlimited workspaces</span>
-        }
+        <mat-icon>folder</mat-icon>
+        <span>{{ allSchedules().length }} workspace{{ allSchedules().length === 1 ? '' : 's' }}</span>
       </div>
       <mat-divider></mat-divider>
 
@@ -45,13 +50,9 @@
       <mat-divider></mat-divider>
 
       <!-- Actions -->
-      <button mat-menu-item (click)="createWorkspace()" [disabled]="atScheduleLimit()">
+      <button mat-menu-item (click)="createWorkspace()">
         <mat-icon>add</mat-icon>
-        @if (atScheduleLimit()) {
-          <span class="workspace-upgrade">New workspace <span class="premium-badge-inline">Premium</span></span>
-        } @else {
-          <span>New workspace</span>
-        }
+        <span>New workspace</span>
       </button>
       <button mat-menu-item (click)="renameWorkspace()">
         <mat-icon>edit</mat-icon>
@@ -81,7 +82,7 @@
       </button>
     </mat-menu>
     
-    <button mat-icon-button (click)="nextWeek()" matTooltip="Next week">
+    <button mat-icon-button (click)="viewMode() === 'day' ? nextDay() : nextWeek()" matTooltip="Next">
       <mat-icon>chevron_right</mat-icon>
     </button>
     
@@ -90,20 +91,40 @@
     </button>
   </div>
   
-  <span class="spacer desktop-only"></span>
+  <span class="spacer"></span>
 
   <button mat-stroked-button [matMenuTriggerFor]="modeMenu" class="mode-chip desktop-only" matTooltip="Switch schedule mode">
     Mode: {{ modeLabel() }}&nbsp;<mat-icon class="mode-chip-chevron">arrow_drop_down</mat-icon>
   </button>
 
-  <button mat-icon-button [matMenuTriggerFor]="copyMenu" matTooltip="Quick copy actions" class="desktop-only">
-    <mat-icon>content_copy</mat-icon>
+  @if (!isPersonalMode()) {
+    <button mat-stroked-button (click)="openAiScheduler()" matTooltip="Generate schedule with AI" class="ai-schedule-button desktop-only">
+      <mat-icon>auto_awesome</mat-icon>
+      AI Schedule
+    </button>
+  }
+
+  <button mat-button (click)="openShareDialog()" class="desktop-only">
+    <mat-icon>share</mat-icon>
+    Share
   </button>
-  
-  <button mat-icon-button (click)="openPrintDialog()" matTooltip="Print / Export" class="desktop-only">
-    <mat-icon>print</mat-icon>
+
+  @if (isPremium()) {
+    <button mat-button routerLink="/premium" class="premium-toolbar-button premium-toolbar-button--active desktop-only" matTooltip="Premium active">
+      <mat-icon>workspace_premium</mat-icon>
+      Premium
+    </button>
+  } @else {
+    <button mat-button routerLink="/premium" class="premium-toolbar-button desktop-only" matTooltip="Upgrade to Premium">
+      <mat-icon>star</mat-icon>
+      Premium
+    </button>
+  }
+
+  <button mat-icon-button [matMenuTriggerFor]="moreMenu" aria-label="More actions" matTooltip="More actions">
+    <mat-icon>more_vert</mat-icon>
   </button>
-  
+
   <mat-menu #copyMenu="matMenu">
     <button mat-menu-item (click)="copyFromLastWeek()">
       <mat-icon>library_add</mat-icon>
@@ -123,30 +144,6 @@
       <span>Clear All Data</span>
     </button>
   </mat-menu>
-  
-  @if (!isPersonalMode()) {
-    <button mat-icon-button (click)="openCoverageDialog()" matTooltip="Coverage requirements" class="desktop-only">
-      <mat-icon>settings</mat-icon>
-    </button>
-  }
-  
-  <button mat-icon-button (click)="openHelpDialog()" matTooltip="Help &amp; tips" class="desktop-only">
-    <mat-icon>help_outline</mat-icon>
-  </button>
-  
-  <button mat-button (click)="openShareDialog()" class="desktop-only">
-    <mat-icon>share</mat-icon>
-    Share
-  </button>
-
-  <button mat-button routerLink="/premium" class="premium-toolbar-button desktop-only" matTooltip="Upgrade to Premium">
-    <mat-icon>star</mat-icon>
-    Premium
-  </button>
-
-  <button mat-icon-button [matMenuTriggerFor]="moreMenu" class="mobile-only" aria-label="More actions">
-    <mat-icon>more_vert</mat-icon>
-  </button>
 
   <mat-menu #moreMenu="matMenu">
     <button mat-menu-item (click)="thisWeek()">
@@ -163,6 +160,12 @@
       <span>Copy actions</span>
     </button>
     @if (!isPersonalMode()) {
+      <button mat-menu-item (click)="openAiScheduler()">
+        <mat-icon>auto_awesome</mat-icon>
+        <span>AI Schedule</span>
+      </button>
+    }
+    @if (!isPersonalMode()) {
       <button mat-menu-item (click)="openCoverageDialog()">
         <mat-icon>settings</mat-icon>
         <span>Coverage</span>
@@ -176,17 +179,44 @@
       <mat-icon>share</mat-icon>
       <span>Share</span>
     </button>
+    @if (isDev) {
+      <button mat-menu-item (click)="loadDaycareDemo()">
+        <mat-icon>child_care</mat-icon>
+        <span>Load Daycare Demo</span>
+      </button>
+      <button mat-menu-item (click)="loadNursingDemo()">
+        <mat-icon>local_hospital</mat-icon>
+        <span>Load Nursing Demo</span>
+      </button>
+    }
+    <button mat-menu-item (click)="exportData()">
+      <mat-icon>file_download</mat-icon>
+      <span>Export data</span>
+    </button>
+    <button mat-menu-item (click)="triggerDataImport()">
+      <mat-icon>file_upload</mat-icon>
+      <span>Import data</span>
+    </button>
     <button mat-menu-item (click)="openPrintDialog()">
       <mat-icon>print</mat-icon>
       <span>Print / Export</span>
     </button>
     <mat-divider></mat-divider>
-    <a mat-menu-item routerLink="/premium">
-      <mat-icon>star</mat-icon>
-      <span>Premium</span>
-    </a>
+    @if (isPremium()) {
+      <a mat-menu-item routerLink="/premium">
+        <mat-icon>workspace_premium</mat-icon>
+        <span>Premium ✓</span>
+      </a>
+    } @else {
+      <a mat-menu-item routerLink="/premium">
+        <mat-icon>star</mat-icon>
+        <span>Premium</span>
+      </a>
+    }
   </mat-menu>
 </mat-toolbar>
+
+<input #dataImportInput type="file" accept=".json" hidden (change)="handleDataImport($event)">
 
 <mat-sidenav-container class="schedule-container">
   @if (!isPersonalMode()) {
@@ -213,7 +243,9 @@
         <div class="welcome-banner">
           <span class="welcome-banner-text">
             <strong>Welcome to LeaveAt</strong> — the zero-friction schedule builder.
-            <a routerLink="/premium" class="welcome-banner-link">First 100 Premium unlocks free → Claim</a>
+            @if (!isPremium()) {
+              <a routerLink="/premium" class="welcome-banner-link">First 100 Premium unlocks free → Claim</a>
+            }
           </span>
           <button mat-icon-button class="welcome-banner-dismiss" (click)="dismissWelcomeBanner()" matTooltip="Dismiss">
             <mat-icon>close</mat-icon>
@@ -237,6 +269,11 @@
           [activities]="panelActivities()"
           [weekStartDate]="weekStartDate()"
           [coverageRequirements]="currentSchedule()?.coverageRequirements || null"
+          [disabledDays]="currentSchedule()?.coverageRequirements?.disabledDays || []"
+          [hideClosedDays]="currentSchedule()?.coverageRequirements?.hideClosedDays || false"
+          [viewMode]="viewMode()"
+          [selectedDay]="selectedDay()"
+          [compactShiftCards]="compactShiftMode()"
           [personalMode]="true"
           (shiftsChange)="onShiftsChange($event)">
         </app-schedule-grid>
@@ -258,6 +295,11 @@
           [activities]="panelActivities()"
           [weekStartDate]="weekStartDate()"
           [coverageRequirements]="currentSchedule()?.coverageRequirements || null"
+          [disabledDays]="currentSchedule()?.coverageRequirements?.disabledDays || []"
+          [hideClosedDays]="currentSchedule()?.coverageRequirements?.hideClosedDays || false"
+          [viewMode]="viewMode()"
+          [selectedDay]="selectedDay()"
+          [compactShiftCards]="compactShiftMode()"
           (shiftsChange)="onShiftsChange($event)"
           (requestAddActivity)="onRequestAddActivity($event)">
         </app-schedule-grid>
@@ -271,14 +313,6 @@
         }
       }
 
-      @if (!isPremium()) {
-        <div class="premium-teaser">
-          <span class="premium-teaser-star">✶</span>
-          <span>Premium — Unlimited schedules, templates &amp; history.
-            <a routerLink="/premium" class="premium-teaser-link">First 100 free →</a>
-          </span>
-        </div>
-      }
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

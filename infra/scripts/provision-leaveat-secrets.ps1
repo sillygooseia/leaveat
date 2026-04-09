@@ -109,18 +109,10 @@ try {
         "--from-file=PUBLIC_KEY_PEM=$tmpPublicKey"
     )
 
-    if ($null -ne $secrets.lemonSqueezyApiKey) {
-        $licenseSecretArgs += "--from-literal=LEMONSQUEEZY_API_KEY=$($secrets.lemonSqueezyApiKey)"
-    }
-    if ($null -ne $secrets.lemonSqueezyStoreId) {
-        $licenseSecretArgs += "--from-literal=LEMONSQUEEZY_STORE_ID=$($secrets.lemonSqueezyStoreId)"
-    }
-    if ($null -ne $secrets.lemonSqueezyVariantId) {
-        $licenseSecretArgs += "--from-literal=LEMONSQUEEZY_VARIANT_ID=$($secrets.lemonSqueezyVariantId)"
-    }
-    if ($null -ne $secrets.lemonSqueezyWebhookSecret) {
-        $licenseSecretArgs += "--from-literal=LEMONSQUEEZY_WEBHOOK_SECRET=$($secrets.lemonSqueezyWebhookSecret)"
-    }
+    if ($secrets.stripeSecretKey)    { $licenseSecretArgs += "--from-literal=STRIPE_SECRET_KEY=$($secrets.stripeSecretKey)" }
+    if ($secrets.stripePriceId)      { $licenseSecretArgs += "--from-literal=STRIPE_PRICE_ID=$($secrets.stripePriceId)" }
+    if ($secrets.stripeWebhookSecret){ $licenseSecretArgs += "--from-literal=STRIPE_WEBHOOK_SECRET=$($secrets.stripeWebhookSecret)" }
+    if ($secrets.groqApiKey)         { $licenseSecretArgs += "--from-literal=GROQ_API_KEY=$($secrets.groqApiKey)" }
     if ($secrets.smtpHost)     { $licenseSecretArgs += "--from-literal=SMTP_HOST=$($secrets.smtpHost)" }
     if ($secrets.smtpPort)     { $licenseSecretArgs += "--from-literal=SMTP_PORT=$($secrets.smtpPort)" }
     if ($secrets.smtpSecure)   { $licenseSecretArgs += "--from-literal=SMTP_SECURE=$($secrets.smtpSecure)" }

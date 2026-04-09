@@ -10,24 +10,25 @@ mat-dialog-content {
 h2[mat-dialog-title] {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin: 0;
-  padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 500;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 h2[mat-dialog-title] mat-icon {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-primary, #6750a4);
   flex-shrink: 0;
 }
 
 form {
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -37,22 +38,21 @@ form {
 .day-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.9rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  background: #f0f0f0;
+  color: #555;
+  border-radius: 4px;
+  font-size: 0.78rem;
   font-weight: 500;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.875rem;
   align-self: flex-start;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .day-badge mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
 }
 
 /* ==================== Form Section ==================== */
@@ -121,29 +121,27 @@ form {
 
 /* ==================== Preview Section ==================== */
 .preview-section {
-  margin-top: 1.25rem;
-  padding: 1rem 1.25rem;
+  margin-top: 0.875rem;
+  padding: 0.6rem 0.875rem;
   background: #f8f9fa;
-  border-radius: 10px;
-  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  border: 1px solid #ebebeb;
 }
 
 .preview-header {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
-  color: #888;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  color: #999;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .preview-header mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .shift-preview {
@@ -221,11 +219,11 @@ form {
 /* ==================== Alert Boxes ==================== */
 .alert {
   display: flex;
-  gap: 0.875rem;
-  padding: 1rem 1.125rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-  border-left: 4px solid;
+  gap: 0.6rem;
+  padding: 0.6rem 0.875rem;
+  border-radius: 6px;
+  margin-top: 0.75rem;
+  border-left: 3px solid;
 }
 
 .alert-icon {
@@ -233,9 +231,9 @@ form {
 }
 
 .alert-icon mat-icon {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .alert-content {
@@ -245,21 +243,21 @@ form {
 
 .alert-title {
   font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.2rem;
 }
 
 .alert-message {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   line-height: 1.5;
   word-break: break-word;
 }
 
 .alert-note {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-style: italic;
-  opacity: 0.8;
-  margin-top: 0.4rem;
+  opacity: 0.75;
+  margin-top: 0.3rem;
 }
 
 .alert-warning {
@@ -287,24 +285,24 @@ form {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.125rem;
-  margin-top: 1rem;
-  border-radius: 8px;
-  border: 2px solid;
+  gap: 0.6rem;
+  padding: 0.55rem 0.875rem;
+  margin-top: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid;
   flex-wrap: wrap;
 }
 
 .hours-main {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 0.6rem;
 }
 
 .hours-main > mat-icon {
-  font-size: 26px;
-  width: 26px;
-  height: 26px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -335,58 +333,53 @@ form {
 .hours-badge {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.82rem;
+  gap: 0.25rem;
+  font-size: 0.78rem;
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .hours-badge mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .hours-summary.hours-under {
-  background: linear-gradient(135deg, #e8f5e9, #d4edd7);
-  border-color: #4caf50;
+  background: #f2fbf4;
+  border-color: #c8e6c9;
   color: #2e7d32;
 }
 
 .hours-badge-ok {
-  background: #4caf50;
-  color: white;
+  /* color inherited from parent */
 }
 
 .hours-summary.hours-warning {
-  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-  border-color: #ff9800;
-  color: #e65100;
+  background: #fffcf0;
+  border-color: #ffe0b2;
+  color: #bf6400;
 }
 
 .hours-badge-warning {
-  background: #ff9800;
-  color: white;
+  /* color inherited from parent */
 }
 
 .hours-summary.hours-over {
-  background: linear-gradient(135deg, #ffebee, #fdd6d6);
-  border-color: #f44336;
+  background: #fff5f5;
+  border-color: #ffcdd2;
   color: #c62828;
 }
 
 .hours-badge-error {
-  background: #f44336;
-  color: white;
+  /* color inherited from parent */
 }
 
 /* ==================== Actions Footer ==================== */
 mat-dialog-actions {
-  padding: 0.875rem 1.5rem;
-  border-top: 1px solid #e8e8e8;
+  padding: 0.6rem 1.25rem;
+  border-top: 1px solid #f0f0f0;
   background: #fafafa;
   flex-shrink: 0;
 }
@@ -411,8 +404,8 @@ mat-dialog-actions {
 }
 
 .create-another-checkbox input[type='checkbox'] {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--mat-sys-primary, #6750a4);
 }

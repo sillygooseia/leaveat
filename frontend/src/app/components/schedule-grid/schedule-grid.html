@@ -1,14 +1,34 @@
+@if (viewMode === 'day' && selectedDay !== null) {
+  <app-schedule-day-view
+    [shifts]="shifts"
+    [employees]="employees"
+    [day]="selectedDay"
+    [weekStartDate]="weekStartDate"
+    [coverageRequirements]="coverageRequirements"
+    [personalMode]="personalMode"
+    (shiftsChange)="shiftsChange.emit($event)">
+  </app-schedule-day-view>
+} @else {
 <div class="schedule-grid">
-  @for (day of daysOfWeek; track day) {
+  @for (day of displayDays; track day) {
     <div class="day-column"
          [class.drag-over]="dragOverDay === day"
          [class.today]="isToday(day)"
+         [class.disabled-day]="isDayDisabled(day)"
          (dragover)="onDragOver($event, day)"
          (dragleave)="onDragLeave($event)"
          (drop)="onDrop($event, day)">
       <div class="day-header">
         <h3>{{ dayNames[day] }}</h3>
         <span class="day-date">{{ getDateForDay(day) }}</span>
+        @if (getCoverageStatus(day)) {
+          <button type="button" class="coverage-badge" [ngClass]="getCoverageClass(getCoverageStatus(day))"
+                  (click)="scrollToCoverage(day, $event)"
+                  matTooltip="{{ getCoverageStatus(day)?.status === 'met' ? 'Good coverage' : getCoverageStatus(day)?.status === 'warning' ? 'Warning coverage' : 'Critical coverage' }}"
+                  aria-label="Scroll to coverage details">
+            <mat-icon>{{ getCoverageStatus(day)?.status === 'met' ? 'check_circle' : getCoverageStatus(day)?.status === 'warning' ? 'error_outline' : 'warning' }}</mat-icon>
+          </button>
+        }
         @if (personalMode) {
           <button mat-icon-button (click)="openAddShiftDialog(day)" matTooltip="Add event">
             <mat-icon>add_circle_outline</mat-icon>
@@ -47,7 +67,12 @@
             }
           </div>
         }
-        @if (getShiftsForDay(day).length === 0) {
+        @if (isDayDisabled(day)) {
+          <div class="empty-day closed-day">
+            <mat-icon>block</mat-icon>
+            <span>Closed</span>
+          </div>
+        } @else if (getShiftsForDay(day).length === 0) {
           <div class="empty-day" (click)="openAddShiftDialog(day)">
             <mat-icon>add</mat-icon>
             <span>{{ personalMode ? 'Click to add an event' : 'Click to add a shift' }}</span>
@@ -56,23 +81,32 @@
           @for (shift of getShiftsForDay(day); track shift.id) {
             <div 
               class="shift-card"
+              [class.compact]="compactShiftCards"
               [class.conflict]="hasConflict(shift)"
               (click)="openEditShiftDialog(shift)"
               [style.background-color]="personalMode ? 'rgba(92,107,192,0.12)' : (getEmployee(shift.employeeId)?.color + '20')"
               [style.border-left-color]="personalMode ? '#5c6bc0' : getEmployee(shift.employeeId)?.color"
-              [matTooltip]="personalMode ? (shift.notes || 'Click to edit') : getConflictTooltip(shift)">
-              <div class="shift-header">
-                <div>
-                  @if (!personalMode) {
+              [matTooltip]="compactShiftCards && !personalMode ? (getEmployee(shift.employeeId)?.name + ' • ' + shift.startTime + ' - ' + shift.endTime + (hasConflict(shift) ? ' ⚠️' : '')) : personalMode ? (shift.notes || 'Click to edit') : getConflictTooltip(shift)">
+              <div class="shift-header" [class.compact]="compactShiftCards">
+                @if (compactShiftCards && !personalMode) {
+                  <div class="shift-avatar" [style.background-color]="getEmployee(shift.employeeId)?.color">
+                    {{ getEmployeeInitials(getEmployee(shift.employeeId)?.name) }}
+                  </div>
+                }
+                <div class="shift-header-info">
+                  @if (!compactShiftCards && !personalMode) {
                     <span class="employee-name">{{ getEmployee(shift.employeeId)?.name }}</span>
                   }
                   <span class="shift-time">{{ shift.startTime }} - {{ shift.endTime }}</span>
+                  @if (!compactShiftCards && getShiftOriginLabel(day, shift)) {
+                    <span class="shift-meta">{{ getShiftOriginLabel(day, shift) }}</span>
+                  }
                 </div>
                 @if (!personalMode && hasConflict(shift)) {
                   <mat-icon class="conflict-icon">warning</mat-icon>
                 }
               </div>
-              @if (shift.notes) {
+              @if (shift.notes && !compactShiftCards) {
                 <div class="shift-notes">{{ shift.notes }}</div>
               }
             </div>
@@ -132,3 +166,4 @@
     </div>
   }
 </div>
+} <!-- end @else (week view) -->

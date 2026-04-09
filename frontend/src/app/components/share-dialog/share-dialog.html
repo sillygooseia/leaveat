@@ -13,27 +13,10 @@
             <mat-label>Link expires after</mat-label>
             <mat-select [(ngModel)]="selectedTtl">
               @for (option of ttlOptions; track option.value) {
-                @if (!option.premium || isPremium()) {
-                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                } @else {
-                  <mat-option [value]="option.value" disabled>
-                    <mat-icon style="font-size:16px;vertical-align:middle;margin-right:4px;">lock</mat-icon>
-                    {{ option.label }} — Premium
-                  </mat-option>
-                }
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
-
-          @if (!isPremium()) {
-            <div class="premium-nudge">
-              <mat-icon>workspace_premium</mat-icon>
-              <span>
-                <a routerLink="/premium" (click)="close()">Upgrade to Premium</a>
-                for 30-day and permanent links.
-              </span>
-            </div>
-          }
 
           <div class="info-box">
             <mat-icon>info</mat-icon>
@@ -78,17 +61,6 @@
       </ng-template>
 
       <div class="tab-content">
-        @if (!hasPremiumFeature('registered_access')) {
-          <!-- Premium gate -->
-          <div class="premium-gate">
-            <mat-icon class="gate-icon">workspace_premium</mat-icon>
-            <h3>Premium Feature</h3>
-            <p>Registered Access lets you send one-time invite links to team members. They register their device once and can check their schedule anytime — no new links needed.</p>
-            <a mat-raised-button color="primary" routerLink="/premium" (click)="close()">
-              Upgrade to Premium
-            </a>
-          </div>
-        } @else {
 
           <!-- Section 1: Publish snapshot ──────────────────────── -->
           <section class="ra-section">
@@ -220,7 +192,6 @@
               }
             </section>
           }
-        }
       </div>
     </mat-tab>
 

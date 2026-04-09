@@ -31,10 +31,10 @@ license:
       memory: "256Mi"
   # privateKeyPem: ""   # For dev/testing only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
   # publicKeyPem: ""    # For dev/testing only. For production: leave empty and run scripts/provision-leaveat-secrets.ps1.
-  # lemonsqueezyApiKey: ""
-  # lemonsqueezyStoreId: ""
-  # lemonsqueezyVariantId: ""
-  # lemonsqueezyWebhookSecret: ""
+  # stripeSecretKey: ""
+  # stripePriceId: ""
+  # stripeWebhookSecret: ""
+  # groqApiKey: ""
 
 redis:
   enabled: true

@@ -10,6 +10,7 @@ import { Shift, Employee, ActivityEvent } from '../../models';
 import { ShiftDialogComponent, ShiftDialogData } from '../shift-dialog/shift-dialog';
 import { findConflicts, getDayName, calculateSimpleCoverageForDay, calculateAllRoomCoverages, getWorstRoomCoverage, getWorstTimeBasedCoverage, calculateCoverageForSlot, hasPartialSlotCoverage, getHourlyBreakdown, HourlyBreakdown } from '../../utils/schedule-helpers';
 import { CoverageRequirements, CoverageStatus, RoomCoverageStatus, CoverageTimeSlot } from '../../models/coverage.model';
+import { ScheduleDayViewComponent } from '../schedule-day-view/schedule-day-view';
 
 @Component({
   selector: 'app-schedule-grid',
@@ -20,6 +21,7 @@ import { CoverageRequirements, CoverageStatus, RoomCoverageStatus, CoverageTimeS
     MatIconModule,
     MatTooltipModule,
     MatMenuModule,
+    ScheduleDayViewComponent,
   ],
   templateUrl: './schedule-grid.html',
   styleUrls: ['./schedule-grid.css']
@@ -29,13 +31,31 @@ export class ScheduleGridComponent {
   @Input() employees: Employee[] = [];
   @Input() activities: ActivityEvent[] = [];
   @Input() coverageRequirements: CoverageRequirements | null = null;
+  @Input() disabledDays: number[] = [];
+  @Input() hideClosedDays = false;
   @Input() weekStartDate: string = '';
+  @Input() viewMode: 'week' | 'day' = 'week';
+  @Input() selectedDay: number | null = null;
   @Input() personalMode: boolean = false;
+  @Input() compactShiftCards: boolean = false;
   @Output() shiftsChange = new EventEmitter<Shift[]>();
   @Output() requestAddActivity = new EventEmitter<number>();
 
   dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   daysOfWeek = [0, 1, 2, 3, 4, 5, 6]; // Mon-Sun
+
+  get visibleDays(): number[] {
+    return this.hideClosedDays
+      ? this.daysOfWeek.filter(day => !this.isDayDisabled(day))
+      : this.daysOfWeek;
+  }
+
+  get displayDays(): number[] {
+    if (this.viewMode === 'day' && this.selectedDay !== null) {
+      return [this.selectedDay];
+    }
+    return this.visibleDays;
+  }
 
   dragOverDay: number | null = null;
 
@@ -66,6 +86,7 @@ export class ScheduleGridComponent {
   }
 
   onDragOver(event: DragEvent, day: number): void {
+    if (this.isDayDisabled(day)) return;
     event.preventDefault();
     event.dataTransfer!.dropEffect = 'copy';
     this.dragOverDay = day;
@@ -81,6 +102,10 @@ export class ScheduleGridComponent {
   }
 
   onDrop(event: DragEvent, day: number): void {
+    if (this.isDayDisabled(day)) {
+      this.dragOverDay = null;
+      return;
+    }
     event.preventDefault();
     this.dragOverDay = null;
     const employeeId = event.dataTransfer?.getData('employeeId');
@@ -162,13 +187,54 @@ export class ScheduleGridComponent {
   }
 
   getShiftsForDay(day: number): Shift[] {
-    return this.shifts
-      .filter(s => s.day === day)
-      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    const todayShifts = this.shifts.filter(s => s.day === day);
+    const previousOvernight = (this.viewMode === 'day' && this.selectedDay === day)
+      ? this.shifts.filter(s => s.day === (day + 6) % 7 && this.isOvernightShift(s))
+      : [];
+
+    return [...todayShifts, ...previousOvernight]
+      .sort((a, b) => this._shiftSortKey(day, a) - this._shiftSortKey(day, b));
+  }
+
+  private isOvernightShift(shift: Shift): boolean {
+    return shift.endTime <= shift.startTime;
+  }
+
+  private _shiftSortKey(day: number, shift: Shift): number {
+    if (shift.day !== day && this.isOvernightShift(shift)) {
+      return 0;
+    }
+    const [hour, minute] = shift.startTime.split(':').map(Number);
+    return hour * 60 + minute;
+  }
+
+  getShiftOriginLabel(day: number, shift: Shift): string {
+    if (this.viewMode !== 'day' || this.selectedDay !== day) return '';
+    if (shift.day !== day && this.isOvernightShift(shift)) {
+      return 'From yesterday';
+    }
+    if (shift.day === day && this.isOvernightShift(shift)) {
+      return 'Overnight';
+    }
+    return '';
+  }
+
+  isDayDisabled(day: number): boolean {
+    return (this.disabledDays || []).includes(day);
   }
 
   getEmployee(employeeId: string): Employee | undefined {
     return this.employees.find(e => e.id === employeeId);
+  }
+
+  getEmployeeInitials(name?: string): string {
+    if (!name) return '';
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(part => part[0].toUpperCase())
+      .slice(0, 2)
+      .join('');
   }
 
   /**
@@ -198,6 +264,11 @@ export class ScheduleGridComponent {
   }
 
   openAddShiftDialog(day: number): void {
+    if (this.isDayDisabled(day)) {
+      alert('This day is marked closed. Remove the closed-day setting to add shifts.');
+      return;
+    }
+
     if (this.employees.length === 0) {
       alert('Please add employees before creating shifts');
       return;
@@ -380,6 +451,18 @@ export class ScheduleGridComponent {
       return `1 person short (${status.scheduled}/${status.required})`;
     } else {
       return `${status.deficit} people short (${status.scheduled}/${status.required})`;
+    }
+  }
+
+  scrollToCoverage(day: number, event: MouseEvent): void {
+    event.preventDefault();
+    const target = event.currentTarget as HTMLElement | null;
+    const dayColumn = target?.closest('.day-column') as HTMLElement | null;
+    const coverageSection = dayColumn?.querySelector('.coverage-footer, .coverage-slots-footer, .coverage-rooms-footer') as HTMLElement | null;
+    if (coverageSection) {
+      coverageSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      coverageSection.classList.add('coverage-scroll-target');
+      window.setTimeout(() => coverageSection?.classList.remove('coverage-scroll-target'), 1200);
     }
   }
 }

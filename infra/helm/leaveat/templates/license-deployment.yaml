@@ -61,29 +61,29 @@ spec:
                 secretKeyRef:
                   name: {{ include "leaveat.fullname" . }}-license-secret
                   key: PUBLIC_KEY_PEM
-            - name: LEMONSQUEEZY_API_KEY
+            - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "leaveat.fullname" . }}-license-secret
-                  key: LEMONSQUEEZY_API_KEY
+                  key: STRIPE_SECRET_KEY
                   optional: true
-            - name: LEMONSQUEEZY_STORE_ID
+            - name: STRIPE_PRICE_ID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "leaveat.fullname" . }}-license-secret
-                  key: LEMONSQUEEZY_STORE_ID
+                  key: STRIPE_PRICE_ID
                   optional: true
-            - name: LEMONSQUEEZY_VARIANT_ID
+            - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "leaveat.fullname" . }}-license-secret
-                  key: LEMONSQUEEZY_VARIANT_ID
+                  key: STRIPE_WEBHOOK_SECRET
                   optional: true
-            - name: LEMONSQUEEZY_WEBHOOK_SECRET
+            - name: GROQ_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "leaveat.fullname" . }}-license-secret
-                  key: LEMONSQUEEZY_WEBHOOK_SECRET
+                  key: GROQ_API_KEY
                   optional: true
             - name: SMTP_HOST
               valueFrom:

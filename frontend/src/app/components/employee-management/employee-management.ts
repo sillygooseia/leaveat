@@ -49,7 +49,7 @@ export class EmployeeManagementComponent {
 
   openAddDialog(): void {
     const dialogRef = this.dialog.open(EmployeeDialogComponent, {
-      width: '400px',
+      width: 'min(480px, 95vw)',
       data: { employee: null, mode: this.mode() }
     });
 
@@ -65,7 +65,7 @@ export class EmployeeManagementComponent {
 
   openEditDialog(employee: Employee): void {
     const dialogRef = this.dialog.open(EmployeeDialogComponent, {
-      width: '400px',
+      width: 'min(480px, 95vw)',
       data: { employee, mode: this.mode() }
     });
 

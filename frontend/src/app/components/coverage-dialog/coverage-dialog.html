@@ -42,6 +42,32 @@
 
       <mat-divider></mat-divider>
 
+      <div class="closed-days-section">
+        <h3>Closed Days</h3>
+        <p class="mode-help">Mark days when the facility is closed and no new shifts should be scheduled.</p>
+
+        <label class="hide-closed-toggle">
+          <input type="checkbox" [checked]="hideClosedDays()" (change)="hideClosedDays.set($any($event.target).checked)">
+          <span>Hide closed days in schedule view</span>
+        </label>
+
+        <div class="closed-days-grid">
+          @for (day of allDays; track day) {
+            <button type="button"
+                    mat-stroked-button
+                    [class.closed-day]="isDayClosed(day)"
+                    (click)="toggleClosedDay(day)">
+              <span>{{ dayNames[day] }}</span>
+              @if (isDayClosed(day)) {
+                <mat-icon>check</mat-icon>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
       <!-- Simple mode -->
       @if (mode() === 'simple') {
         <div class="simple-config">

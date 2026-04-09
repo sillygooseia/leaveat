@@ -32,14 +32,6 @@ export class ShareService {
   async shareSchedule(schedule: Schedule, ttlSeconds: number = 604800): Promise<ShareLinkResponse> {
     const isPermanent = ttlSeconds === PERMANENT_LINK_TTL;
 
-    if (isPermanent && !this.licenseService.hasFeature('permanent_links')) {
-      throw new Error('PREMIUM_REQUIRED');
-    }
-
-    if (ttlSeconds > 604800 && !this.licenseService.isPremium()) {
-      throw new Error('PREMIUM_REQUIRED');
-    }
-
     const payload = {
       data: { schedule, sharedAt: Date.now() },
       ttlSeconds: isPermanent ? 0 : ttlSeconds,

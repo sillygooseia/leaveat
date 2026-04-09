@@ -60,9 +60,9 @@ Use the production helper script instead. It executes the token issuer inside th
 
 ```powershell
 cd c:\Users\ben\source\repos\sillygooseia-corp
-.\scripts\issue-production-license.ps1
-.\scripts\issue-production-license.ps1 -Days 30
-.\scripts\issue-production-license.ps1 -Days 30 -CopyToken
+.\infra\scripts\issue-production-license.ps1
+.\infra\scripts\issue-production-license.ps1 -Days 30
+.\infra\scripts\issue-production-license.ps1 -Days 30 -CopyToken
 ```
 
 The script prints a production-valid JWT and can optionally copy it to your clipboard.

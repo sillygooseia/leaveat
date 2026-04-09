@@ -1,4 +1,4 @@
-import { Component, Inject, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -40,6 +40,11 @@ const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
   styleUrls: ['./coverage-dialog.css']
 })
 export class CoverageDialogComponent {
+  private readonly dialogRef = inject<MatDialogRef<CoverageDialogComponent>>(MatDialogRef, { optional: true });
+
+  /** Emits the saved requirements (or null on cancel) when used from a page. */
+  @Output() result = new EventEmitter<CoverageRequirements | null>();
+
   enabled = signal(false);
   mode = signal<'simple' | 'time-based' | 'room-ratio'>('simple');
   simpleMinStaff = signal(2);
@@ -47,15 +52,24 @@ export class CoverageDialogComponent {
     ALL_DAYS.map(day => ({ day, timeSlots: [] }))
   );
   rooms = signal<RoomDefinition[]>([]);
+  disabledDays = signal<number[]>([]);
+  hideClosedDays = signal(false);
 
   templates = COVERAGE_TEMPLATES;
   allDays = ALL_DAYS;
   dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  constructor(
-    private dialogRef: MatDialogRef<CoverageDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: CoverageDialogData
-  ) {
+  constructor() {
+    const dialogData = inject<CoverageDialogData>(MAT_DIALOG_DATA, { optional: true });
+    if (dialogData) {
+      this._init(dialogData);
+    }
+  }
+
+  /** Called by the page wrapper via property binding: `[data]="..."`. */
+  @Input() set data(d: CoverageDialogData) { this._init(d); }
+
+  private _init(data: CoverageDialogData): void {
     if (data.requirements) {
       const req = data.requirements;
       this.enabled.set(req.enabled);
@@ -76,6 +90,16 @@ export class CoverageDialogComponent {
       if (req.rooms) {
         this.rooms.set(req.rooms.map(r => ({ ...r })));
       }
+      this.disabledDays.set(req.disabledDays ? [...req.disabledDays] : []);
+      this.hideClosedDays.set(!!req.hideClosedDays);
+    }
+  }
+
+  private _close(res: CoverageRequirements | null): void {
+    if (this.dialogRef) {
+      this.dialogRef.close(res ?? undefined);
+    } else {
+      this.result.emit(res);
     }
   }
 
@@ -118,6 +142,16 @@ export class CoverageDialogComponent {
         : d
       )
     );
+  }
+
+  toggleClosedDay(day: number): void {
+    this.disabledDays.update(days => {
+      return days.includes(day) ? days.filter(d => d !== day) : [...days, day];
+    });
+  }
+
+  isDayClosed(day: number): boolean {
+    return this.disabledDays().includes(day);
   }
 
   removeTimeSlot(day: number, index: number): void {
@@ -184,7 +218,11 @@ export class CoverageDialogComponent {
 
   save(): void {
     if (!this.enabled()) {
-      this.dialogRef.close({ enabled: false, mode: 'simple' } as CoverageRequirements);
+      const requirements: CoverageRequirements = { enabled: false, mode: 'simple' };
+      if (this.disabledDays().length) {
+        requirements.disabledDays = this.disabledDays();
+      }
+      this._close(requirements);
       return;
     }
 
@@ -201,11 +239,18 @@ export class CoverageDialogComponent {
       requirements.rooms = this.rooms();
     }
 
-    this.dialogRef.close(requirements);
+    if (this.disabledDays().length) {
+      requirements.disabledDays = this.disabledDays();
+    }
+    if (this.hideClosedDays()) {
+      requirements.hideClosedDays = true;
+    }
+
+    this._close(requirements);
   }
 
   cancel(): void {
-    this.dialogRef.close(null);
+    this._close(null);
   }
 
   disable(): void {

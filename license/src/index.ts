@@ -4,7 +4,8 @@ import cors from 'cors';
 import { initSchema } from './db';
 import { getKeyPair } from './keys';
 import { LICENSE_ROUTE_PREFIXES, licenseLogPrefix } from './config';
-const { createLogger, requestLogger: requestLogger } = require('@epheme/core/logger');
+import pino from 'pino';
+import pinoHttp from 'pino-http';
 
 import publicKeyRouter from './routes/public-key';
 import checkoutRouter from './routes/checkout';
@@ -13,11 +14,12 @@ import restoreRouter from './routes/restore';
 import backupRouter from './routes/backup';
 import passkeyRouter from './routes/passkey';
 import promoRouter from './routes/promo';
+import aiRouter from './routes/ai';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const IS_PROD = process.env.NODE_ENV === 'production';
-const log = createLogger({ service: 'leaveat-license' });
+const log = pino({ name: 'leaveat-license', level: process.env.LOG_LEVEL || 'info' });
 
 // Trust reverse proxy (nginx/k8s) for real client IP in X-Forwarded-For
 // Only enable when running behind a trusted proxy — prevents IP spoofing.
@@ -35,7 +37,7 @@ app.use(
 // ── CORS ─────────────────────────────────────────────────────────────────────
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:4201').split(',').map(o => o.trim());
 app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
-app.use(requestLogger(log));
+app.use(pinoHttp({ logger: log }));
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 for (const prefix of LICENSE_ROUTE_PREFIXES) {
@@ -46,6 +48,7 @@ for (const prefix of LICENSE_ROUTE_PREFIXES) {
   app.use(prefix, backupRouter);
   app.use(prefix, passkeyRouter);
   app.use(prefix, promoRouter);
+  app.use(prefix, aiRouter);
 }
 
 // Dev-only token issuance — strictly disabled in production
